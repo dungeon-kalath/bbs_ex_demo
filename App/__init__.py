@@ -9,6 +9,7 @@ from App.bbs_background import register_bp_back
 from App.bbs_foreground import register_bp_front
 from App.extensions import app_init
 from App.settings import config
+from App.models import *
 
 
 def create_app():

@@ -8,7 +8,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 
 db = SQLAlchemy()
-migrate = Migrate()
+migrate = Migrate(db=db)
 
 
 # initialization
