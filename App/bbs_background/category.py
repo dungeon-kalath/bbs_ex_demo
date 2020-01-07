@@ -1,5 +1,13 @@
 # -*- coding: utf-8 -*-
 # @File    : category.py
-# 描述     ：
+# 描述     ： sections of forum
 # @Time    : 2020/1/7 18:40
-# @Author  :
+# @Author  : Kalath
+from flask import Blueprint
+
+sections = Blueprint("sections", __name__, url_prefix="/admin")
+
+
+@sections.route("/sec/")
+def section_index():
+    return "sections of forum"

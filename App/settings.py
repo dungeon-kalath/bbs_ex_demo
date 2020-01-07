@@ -17,7 +17,7 @@ class DevelopConfig(BaseConfig):
 
 
 class ProductConfig(BaseConfig):
-    SQLALCHEMY_DATABASE_URI = "mysql+pymysql://root:123456@127.0.0.1:3306/py"
+    SQLALCHEMY_DATABASE_URI = "mysql+pymysql://root:123456@127.0.0.1:3306/forum"
 
 
 config = {
@@ -25,3 +25,5 @@ config = {
     "development": DevelopConfig,
     "production": ProductConfig
 }
+
+
