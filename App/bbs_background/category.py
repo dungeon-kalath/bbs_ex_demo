@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # @File    : category.py
-# 描述     ： sections of forum
+# @Theme   ： sections of forum
 # @Time    : 2020/1/7 18:40
 # @Author  : Kalath
 from flask import Blueprint

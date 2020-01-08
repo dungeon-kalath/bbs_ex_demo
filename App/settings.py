@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # @File    : settings.py
-# 描述     ： Application Configuration
+# @Theme  ： Application Configuration
 # @Time    : 2020/1/7 17:49
 # @Author  : Kalath
 

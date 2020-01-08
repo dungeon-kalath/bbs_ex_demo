@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # @File    : user.py
-# 描述     ： manage user information, maintenance, registration, logging actions of users
+# @Theme   ： manage user information, maintenance, registration, logging actions of users
 # @Time    : 2020/1/7 18:40
 # @Author  : Kalath
 from flask import Blueprint

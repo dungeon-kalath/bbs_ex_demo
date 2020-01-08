@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # @File    : models.py
-# 描述     ：
+# @Theme   ：
 # @Time    : 2020/1/7 18:37
 # @Author  :
 from App.extensions import db
@@ -57,7 +57,7 @@ from App.extensions import db
 #     overtime = db.Column(db.Integer, nullable=True, default="NULL")
 #
 #
-# class BbsLink():
+# class BbsLink(db.Model):
 #     lid = db.Column(db.SmallInteger, primary_key=True, nullable=False, autoincrement=True)
 #     # order of display, desc
 #     displayorder = db.Column(db.SmallInteger, nullable=False, default=0)
@@ -167,12 +167,6 @@ from App.extensions import db
 #     ispay = db.Column(db.SmallInteger, nullable=False, default=0)
 
 
-    # def __init__(self, uid, tid, rate, addtime):
-    #     self.uid = uid
-    #     self.tid = tid
-    #     self.rate = rate
-    #     self.addtime = addtime
-
 class Category(db.Model):
     cid = db.Column(db.Integer, primary_key=True, autoincrement=True)
     # section name
@@ -242,3 +236,35 @@ class User(db.Model):
     autograph = db.Column(db.VARCHAR(500), nullable=True, default="NULL")
     # login allowed or not
     allowlogin = db.Column(db.SmallInteger, nullable=False, default=0)
+
+
+class Link(db.Model):
+    id = db.Column(db.SmallInteger, primary_key=True, autoincrement=True, name="lid")
+    # order of display, desc
+    displayorder = db.Column(db.SmallInteger, nullable=False, default=0)
+    # name
+    name = db.Column(db.VARCHAR(30), nullable=False)
+    # link address
+    url = db.Column(db.VARCHAR(255), nullable=False)
+    # description
+    description = db.Column(db.TEXT(0), nullable=True)
+    # link address of the logo image
+    logo = db.Column(db.VARCHAR(255), nullable=True)
+    # time
+    addtime = db.Column(db.Integer, nullable=False)
+    __tablename__ = "bbs_link"
+
+
+class Sponsor(db.Model):
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True, name="sid")
+    # sponsor name
+    sname = db.Column(db.VARCHAR(30), nullable=False)
+    # time
+    addtime = db.Column(db.Date, nullable=False)
+    # inc name
+    inc = db.Column(db.VARCHAR(50), nullable=False)
+    # icp name
+    icp = db.Column(db.VARCHAR(50), nullable=True)
+    # btm name
+    btm = db.Column(db.VARCHAR(50), nullable=False)
+    __tablename__ = "bbs_sponsor"

@@ -83,7 +83,7 @@ function setHomepage(sURL) {
 		<div id="nv">
 			<ul>
 				<li class="a" id="mn_forum" ><a href="{{url_for('bbs.bbs_index')}}" hidefocus="true" title="{$web_name}">Index</a><span>{$web_name}</span></li>
-				{% for category in big_category %}
+				{% for category in first_layer_category %}
 				<li class="a" id="mn_home" ><a href="/{{category.cid}}" hidefocus="true" title="Space">{{ category.classname }}</a></li>
 				{% endfor %}
 
@@ -140,34 +140,34 @@ function setHomepage(sURL) {
 
 			<div class="fl bm">
 				{% if cid == 0 %}
-					{% for category in big_category %}
+					{% for category in first_layer_category %}
 						<div class="bm bmw  cl">
 					<div class="bm_h cl">
 						<h2><a href="{{url_for('bbs.list_category', cid=category.cid)}}">{{category.classname}}</a></h2>
 					</div>
 					<div id="category_1" class="bm_c">
 						<table cellspacing="0" cellpadding="0" class="fl_tb">
-							{% for small in small_category %}
-								{% if small.parentid == category.cid %}
+							{% for other in other_layer_category %}
+								{% if other.parentid == category.cid %}
 									<tr class="fl_row">
 									<td class="fl_icn" >
-										<a href="{{url_for('bbs.list_category', cid=small.cid)}}"><img src="{{ url_for('static', filename=small.classpic)}}" alt="{{ small.classname }}" /></a>
+										<a href="{{url_for('bbs.list_category', cid=other.cid)}}"><img src="{{ url_for('static', filename=other.classpic)}}" alt="{{ other.classname }}" /></a>
 									</td>
 									<td>
-										<h2><a href="{{url_for('bbs.list_category', cid=small.cid)}}" style="color:{$val['namestyle']}">{{ small.classname }}</a></h2>
-										{% if small.description %}
-											<p class="xg2">{{ small.description }}</p>
+										<h2><a href="{{url_for('bbs.list_category', cid=other.cid)}}" style="color:{$val['namestyle']}">{{ other.classname }}</a></h2>
+										{% if other.description %}
+											<p class="xg2">{{ other.description }}</p>
 										{% endif %}
 
-										<p>Compere: <span class="xi2">{{ small.compere }}</span></p>
+										<p>Compere: <span class="xi2">{{ other.compere }}</span></p>
 
 									</td>
 									<td class="fl_i">
-										<span class="xi2">{{ small.replycount }}</span><span class="xg1"> / {{ small.postcount }}</span>
+										<span class="xi2">{{ other.replycount }}</span><span class="xg1"> / {{ other.postcount }}</span>
 									</td>
 									<td class="fl_by">
 										<div>
-											{{ small.lastpost }}
+											{{ other.lastpost }}
 										</div>
 									</td>
 								</tr>
@@ -180,29 +180,29 @@ function setHomepage(sURL) {
 				{% else %}
 					<div class="bm bmw  cl">
 					<div class="bm_h cl">
-						<h2><a href="{{url_for('bbs.list_category', cid=the_big.cid)}}">{{the_big.classname}}</a></h2>
+						<h2><a href="{{url_for('bbs.list_category', cid=the_category.cid)}}">{{the_category.classname}}</a></h2>
 					</div>
 					<div id="category_1" class="bm_c">
 						<table cellspacing="0" cellpadding="0" class="fl_tb">
-							{% for small in small_category %}
-								{% if small.parentid == the_big.cid %}
+							{% for other in other_layer_category %}
+								{% if other.parentid == the_category.cid %}
 									<tr class="fl_row">
 									<td class="fl_icn" >
-										<a href="{{url_for('bbs.list_category', cid=small.cid)}}"><img src="{{ url_for('static', filename=small.classpic)}}" alt="{{ small.classname }}" /></a>
+										<a href="{{url_for('bbs.list_category', cid=other.cid)}}"><img src="{{ url_for('static', filename=other.classpic)}}" alt="{{ other.classname }}" /></a>
 									</td>
 									<td>
-										<h2><a href="{{url_for('bbs.list_category', cid=small.cid)}}" style="color:{$val['namestyle']}">{{ small.classname }}</a></h2>
-										<p class="xg2">{{ small.description }}</p>
+										<h2><a href="{{url_for('bbs.list_category', cid=other.cid)}}" style="color:{$val['namestyle']}">{{ other.classname }}</a></h2>
+										<p class="xg2">{{ other.description }}</p>
 
-										<p>Compere: <span class="xi2">{{ small.compere }}</span></p>
+										<p>Compere: <span class="xi2">{{ other.compere }}</span></p>
 
 									</td>
 									<td class="fl_i">
-										<span class="xi2">{{ small.replycount }}</span><span class="xg1"> / {{ small.postcount }}</span>
+										<span class="xi2">{{ other.replycount }}</span><span class="xg1"> / {{ other.postcount }}</span>
 									</td>
 									<td class="fl_by">
 										<div>
-											{{ small.lastpost }}
+											{{ other.lastpost }}
 										</div>
 									</td>
 								</tr>
@@ -244,21 +244,21 @@ function setHomepage(sURL) {
 			<div class="bm lk">
 				<div id="category_lk" class="bm_c ptm">
 					<ul class="m mbn cl">
-						<!--{loop $imgUrl $index $iurl}-->
-						<li class="lk_logo mbm bbda cl">
-							<img src="{$iurl['logo']}" border="0" alt="{$iurl['name']}" />
-							<div class="lk_content z">
-								<h5><a href="{$iurl['url']}" target="_blank">{$iurl['name']}</a></h5>
-								<p>{$iurl['description']}</p>
-							</div>
-						<!--{/loop}-->
+						{% for link in links %}
+							<li class="lk_logo mbm bbda cl">
+								<img src="{{ url_for('static', filename=link.logo)}}" border="0" alt="{{link.name}}" />
+								<div class="lk_content z">
+									<h5><a href="{{link.url}}" target="_blank">{{link.name}}</a></h5>
+									<p>{{link.description}}</p>
+								</div>
+						{% endfor %}
 					</ul>
 					
-					<ul class="x mbm cl">
-						<!--{loop $textUrl $tindex $turl}-->
-						<li><a href="{$turl['url']}" target="_blank" title="{$turl['name']}">{$turl['name']}</a></li>
-						<!--{/loop}-->
-					</ul>
+<!--					<ul class="x mbm cl">-->
+<!--						&lt;!&ndash;{loop $textUrl $tindex $turl}&ndash;&gt;-->
+<!--						<li><a href="{$turl['url']}" target="_blank" title="{$turl['name']}">{$turl['name']}</a></li>-->
+<!--						&lt;!&ndash;{/loop}&ndash;&gt;-->
+<!--					</ul>-->
 				</div>
 			</div>
 			
@@ -271,15 +271,15 @@ function setHomepage(sURL) {
 <div id="ft" class="wp cl">
 	<div id="flk" class="y">
 		<p>
-		<a href="#" >{$web_icp}</a><span class="pipe">|</span><strong><a href="{$web_url}" target="_blank">{$web_btm}</a></strong>
+		<a href="#" >{{sponsor.icp}}</a><span class="pipe">|</span><strong><a href="" target="_blank">{{sponsor.btm}}</a></strong>
 		</p>
 		<p class="xs0">
-			Time Now Is: ${date('m-d H:i')}
+			Time Now Is: {{time_now}}
 		</p>
 	</div>
 	<div id="frt">
-		<p>Powered by <strong><a href="{$web_url}" target="_blank">{$web_btm}</a></strong> <em>V2</em></p>
-		<p class="xs0">&copy; ${date('Y')} <a href="{$web_url}" target="_blank">{$web_btm} Inc.</a></p>
+		<p>Powered by <strong><a href="" target="_blank">{{sponsor.sname}}</a></strong> <em>V2</em></p>
+		<p class="xs0">&copy; {{sponsor.addtime.year}} <a href="" target="_blank">{{sponsor.inc}} Inc.</a></p>
 	</div>
 </div>
 </body>

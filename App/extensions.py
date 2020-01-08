@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # @File    : extensions.py
-# 描述     ： application extensions, including Class instances, database objects, mail objects, bootstrap
+# @Theme   ： application extensions, including Class instances, database objects, mail objects, bootstrap
 # @Time    : 2020/1/7 17:48
 # @Author  : Kalath
 from flask_migrate import Migrate

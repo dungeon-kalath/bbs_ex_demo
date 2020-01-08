@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
 # @File    : views.py
-# 描述     ：
+# @Theme   ： foreground view
 # @Time    : 2020/1/7 18:40
 # @Author  : Kalath
+import datetime
+
 from flask import Blueprint, render_template
 from sqlalchemy import func
 
 from App.extensions import db
-from App.models import Category, User
+from App.models import Category, User, Link, Sponsor
 
 bbs = Blueprint("bbs", __name__)
 
@@ -20,27 +22,38 @@ def bbs_index(cid=0):
     :param cid: default value is 0, show every section. For other values, show specific section.
     :return:
     """
-    big_category = Category.query.filter(Category.parentid == 0).all()
-    small_category = Category.query.filter(Category.parentid != 0).all()
+    # query first level data
+    first_layer_category = Category.query.filter(Category.parentid == 0).all()
+    # query other levels data
+    other_layer_category = Category.query.filter(Category.parentid != 0).all()
 
+    # number of posts
     posts = db.session.query(func.sum(Category.postcount)).group_by(Category.parentid).having(Category.parentid == 0).all()[0][0]
+    # number of replies
     replies = db.session.query(func.sum(Category.replycount)).group_by(Category.parentid).having(Category.parentid == 0).all()[0][0]
-
+    # number of users
     user_count = User.query.count()
-
+    # name of new user
     new_user = User.query.order_by(-User.id).limit(1).first()
-
-
+    # all links
+    links = Link.query.order_by(-Link.displayorder).all()
+    # sponsor object
+    sponsor = Sponsor.query.first()
+    # current date
+    time_now = datetime.datetime.now().strftime("%m-%d %H:%M")
+    # if cid not equal to 0, find the specific section
     if cid != 0:
-        for big in big_category:
-            if big.cid == cid:
-                the_big = big
+        for sub_category in first_layer_category:
+            if sub_category.cid == cid:
+                the_category = sub_category
                 break
         return render_template("foreground/index.html", **locals())
+    # cid equals to 0, show every section
     else:
         # return render_template("foreground/index.html", big_category=big_category, cid=cid,
         #                        small_category=small_category)
         return render_template("foreground/index.html", **locals())
+
 
 @bbs.route("/list/<int:cid>/")
 def list_category(cid):
