@@ -36,31 +36,30 @@ function setHomepage(sURL) {
 	<div class="wp">
 		<div class="hdc cl">
 			<h2><a href="./" title="{$title}"><img src="{{ url_for('static', filename='foreground/images/logo.jpg')}}" height="80" border="0" /></a></h2>
-			<!--{if $thispage!='logout.php'}-->
-				<!--{if $_COOKIE['uid']}-->
+            {% if current_user.is_authenticated %}
 				<div id="um">
-					<div class="avt y"><a href="home_tx.php"><img src="{$GGpicture}" /></a></div>
+					<div class="avt y"><a href="home_tx.php"><img src="{{ url_for("static", filename=current_user.portrait)}}" /></a></div>
 					<p>
-					<strong class="vwmy"><a href="home.php" target="_blank">{$_COOKIE['username']}</a></strong>
+					<strong class="vwmy"><a href="home.php" target="_blank">{{ current_user.username }}</a></strong>
 					<span class="pipe">|</span><a href="home.php">Settings</a>
-					<!--{if $_COOKIE['udertype']}-->
-					<span class="pipe">|</span><a href="admin.php" target="_blank">Menu</a>
-					<!--{/if}-->
-					<span class="pipe">|</span><a href="logout.php">Exit</a>
+					{% if current_user.usertype %}
+					    <span class="pipe">|</span><a href="admin.php" target="_blank">Menu</a>
+					{% endif %}
+					<span class="pipe">|</span><a href="{{ url_for( 'user_info.user_logout' ) }}">Logout</a>
 					</p>
 					<p>
-					<a id="extcreditmenu" href="#">Point: {$GGgrade}</a>
-					<span class="pipe">|</span>User Permission: ${userGroup($_COOKIE['udertype'])}
+					<a id="extcreditmenu" href="#">Point: {{ current_user.grade }}</a>
+					<span class="pipe">|</span>User Permission: {{"Administrator" if current_user.usertype else "Ordinary user" }}
 					</p>
 				</div>
-				<!--{else}-->
-				<form method="post" autocomplete="off" id="lsform" action="login.php">
+				{% else %}
+				<form method="post" autocomplete="off" id="lsform" action="{{ url_for( 'user_info.user_login' ) }}">
 				<div class="fastlg cl">
 					<div class="y pns">
 						<table cellspacing="0" cellpadding="0">
 							<tr>
 								<td><span class="ftid">Username</span></td>
-								<td><input type="text" name="username" value="{$_COOKIE['username']}" id="ls_username" autocomplete="off" class="px vm" /></td>
+								<td><input type="text" name="username" value="" id="ls_username" autocomplete="off" class="px vm" /></td>
 								<td class="fastlg_l">
 									<label for="ls_cookietime"><input type="checkbox" name="cookietime" id="ls_cookietime" class="pc" value="true" />Log On Automatically</label>
 								</td>
@@ -76,8 +75,7 @@ function setHomepage(sURL) {
 					</div>
 				</div>
 				</form>
-				<!--{/if}-->
-			<!--{/if}-->
+            {% endif %}
 		</div>
 
 		<div id="nv">
@@ -104,7 +102,7 @@ function setHomepage(sURL) {
 						<div id="scbar_hot">
 							<strong class="xw1">Trending Topic: </strong>
 							<!--{loop $keyWords $kwVal}-->
-							<a href="search.php?keywords={$kwVal}" target="_blank" class="xi2">{$kwVal}</a>
+							<a href="search.php?keywords={$kwVal}" target="_blank" class="xi2">{{ "python" }}</a>
 							<!--{/loop}-->
 						</div>
 					</td>
@@ -120,7 +118,10 @@ function setHomepage(sURL) {
 <div id="wp" class="wp">
 	<div id="pt" class="bm cl">
 		<div class="z">
-			<a href="./" class="nvhm" title="{$title}">{$title}</a><em>&raquo;</em><a href="index.php">Forum</a><!--{if $bigid}--><em>&raquo;</em><a href="index.php?bigid={$LTmenu[0]['cid']}">{$LTmenu[0]['classname']}</a><!--{/if}-->
+			<a href="./" class="nvhm" title="{$title}">{$title}</a><em>&raquo;</em><a href="index.php">Forum</a>
+            {% if cid %}
+            <em>&raquo;</em><a href="">{{ the_category.classname }}</a>
+            {% endif %}
 		</div>
 		<div class="z"></div>
 	</div>
@@ -167,7 +168,13 @@ function setHomepage(sURL) {
 									</td>
 									<td class="fl_by">
 										<div>
-											{{ other.lastpost }}
+{#											{% for post in post_s %}#}
+{#												{% if post.classid == other.cid %}#}
+{#													<a href="" src="" style="color: dodgerblue"> {{ post.title }} </a>#}
+{#													<br/>#}
+{#													{{ post.addtime }}#}
+{#												{% endif %}#}
+{#											{% endfor %}#}
 										</div>
 									</td>
 								</tr>
@@ -180,7 +187,7 @@ function setHomepage(sURL) {
 				{% else %}
 					<div class="bm bmw  cl">
 					<div class="bm_h cl">
-						<h2><a href="{{url_for('bbs.list_category', cid=the_category.cid)}}">{{the_category.classname}}</a></h2>
+						<h2><a href="{{url_for('bbs.list_category', cid=the_category.cid)}}">{{the_category.classroom}}</a></h2>
 					</div>
 					<div id="category_1" class="bm_c">
 						<table cellspacing="0" cellpadding="0" class="fl_tb">
@@ -251,6 +258,7 @@ function setHomepage(sURL) {
 									<h5><a href="{{link.url}}" target="_blank">{{link.name}}</a></h5>
 									<p>{{link.description}}</p>
 								</div>
+                            </li>
 						{% endfor %}
 					</ul>
 					
@@ -279,7 +287,7 @@ function setHomepage(sURL) {
 	</div>
 	<div id="frt">
 		<p>Powered by <strong><a href="" target="_blank">{{sponsor.sname}}</a></strong> <em>V2</em></p>
-		<p class="xs0">&copy; {{sponsor.addtime.year}} <a href="" target="_blank">{{sponsor.inc}} Inc.</a></p>
+		<p class="xs0">&copy; {{current_year}} <a href="" target="_blank">{{sponsor.inc}} Inc.</a></p>
 	</div>
 </div>
 </body>

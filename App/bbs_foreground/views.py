@@ -6,6 +6,7 @@
 import datetime
 
 from flask import Blueprint, render_template
+from flask_login import login_required
 from sqlalchemy import func
 
 from App.extensions import db
@@ -29,6 +30,9 @@ def bbs_index(cid=0):
 
     # number of posts
     posts = db.session.query(func.sum(Category.postcount)).group_by(Category.parentid).having(Category.parentid == 0).all()[0][0]
+    res = db.session.execute("select sum(replycount) from bbs_category")
+    print(res.fetchall())
+
     # number of replies
     replies = db.session.query(func.sum(Category.replycount)).group_by(Category.parentid).having(Category.parentid == 0).all()[0][0]
     # number of users
@@ -37,10 +41,14 @@ def bbs_index(cid=0):
     new_user = User.query.order_by(-User.id).limit(1).first()
     # all links
     links = Link.query.order_by(-Link.displayorder).all()
-    # sponsor object
+    #  sponsor object
     sponsor = Sponsor.query.first()
     # current date
+    current_year = datetime.datetime.now().year
     time_now = datetime.datetime.now().strftime("%m-%d %H:%M")
+
+    # post_s = Details.query.all()
+
     # if cid not equal to 0, find the specific section
     if cid != 0:
         for sub_category in first_layer_category:
@@ -58,3 +66,10 @@ def bbs_index(cid=0):
 @bbs.route("/list/<int:cid>/")
 def list_category(cid):
     return "post list"
+
+
+@bbs.route("/publish/")
+# login required to publish a post
+@login_required
+def publish_post():
+    return "post"
