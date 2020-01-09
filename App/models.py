@@ -394,6 +394,16 @@ class Reply(db.Model):
     isdel = db.Column(db.Integer, nullable=False)
     isdisplay = db.Column(db.Integer, nullable=False)
 
+class Sponsor(db.Model):
+    __tablename__ = 'bbs_sponsor'
+
+    id = db.Column(db.Integer, primary_key=True, name="sid")
+    sname = db.Column(db.String, nullable=False)
+    inc = db.Column(db.String, nullable=False)
+    icp = db.Column(db.String, nullable=False)
+    btm = db.Column(db.String, nullable=False)
+
+
 
 class User(db.Model, UserMixin):
     __tablename__ = 'bbs_user'
@@ -416,16 +426,6 @@ class User(db.Model, UserMixin):
     allowlogin = db.Column(db.Integer)
     grade = db.Column(db.Integer)
 
-class Sponsor(db.Model):
-    __tablename__ = 'bbs_sponsor'
-
-    id = db.Column(db.Integer, primary_key=True, name="sid")
-    sname = db.Column(db.String, nullable=False)
-    inc = db.Column(db.String, nullable=False)
-    icp = db.Column(db.String, nullable=False)
-    btm = db.Column(db.String, nullable=False)
-
-
     @property
     def password(self):
         return self.password_hash
@@ -435,9 +435,9 @@ class Sponsor(db.Model):
         # password signature
         self.password_hash = generate_password_hash(value)
 
-    def check_password(self, password):
+    def check_password(self, pwd):
         # compare whether the original password is identified to signature or not
-        return check_password_hash(self.password_hash, password)
+        return check_password_hash(self.password_hash, pwd)
 
 # login callback
 @login_manager.user_loader
