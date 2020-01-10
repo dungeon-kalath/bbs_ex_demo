@@ -6,7 +6,6 @@
 from hashlib import md5
 
 from flask_login import login_user, logout_user
-from werkzeug.security import generate_password_hash
 
 from App.models import User
 from App.extensions import db
@@ -20,10 +19,12 @@ def user_login():
     if request.method == "POST":
         username = request.form.get("username")
         password = request.form.get("password")
-        password = md5(password.encode("utf8")).hexdigest()
+
+        # password = md5(password.encode("utf8")).hexdigest()
         # query user in database
-        user = User.query.filter(User.username == username, User.password_hash == password).first()
-        if user:
+        user = User.query.filter(User.username == username).first()
+        # user must exist and complete password verification
+        if user and user.check_password(password):
             # write user info into session
             login_user(user)
         # jump to index page
@@ -31,7 +32,7 @@ def user_login():
         # return "login page!!!"
     else:
         # show login page
-        return "login page"
+        return redirect(url_for("bbs.bbs_login"))
 
 
 @user_info.route("/logout/")
@@ -41,20 +42,23 @@ def user_logout():
     return redirect(url_for("bbs.bbs_index"))
 
 
-@user_info.route("/register/", methods=["GET", "POST"])
-def register_user():
-    if request.method == "GET":
-        return render_template("foreground/reg.html")
-    else:
-        data = request.form
-        uname = data.get("username")
-        upsw = data.get("password")
-        umail = data.get("mail")
-
-        user = User()
-        user.username = uname
-        user.password_hash = generate_password_hash(upsw)
-        user.email = umail
-        db.session.add(user)
-        db.session.commit()
-        return redirect(url_for("bbs.bbs_index"))
+# @user_info.route("/register/", methods=["GET", "POST"])
+# def register_user():
+#     if request.method == "GET":
+#         return render_template("foreground/reg.html")
+#     else:
+#         data = request.form
+#         uname = data.get("username")
+#         upsw = data.get("password")
+#         umail = data.get("mail")
+#
+#         if not User.query.filter(User.username == uname).first():
+#             user = User()
+#             user.username = uname
+#             user.password = upsw
+#             user.email = umail
+#             db.session.add(user)
+#             db.session.commit()
+#         else:
+#             return render_template("foreground/reg.html")
+#         return redirect(url_for("bbs.bbs_index"))

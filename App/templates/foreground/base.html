@@ -1,12 +1,3 @@
-<!--{include header.html}-->
-<!--TOP start-->
-<!--{include top.html}-->
-<!--TOP end-->
-
-<!--HEAD start-->
-<!--{include head.html}-->
-<!--HEAD end-->
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -78,7 +69,7 @@ function setHomepage(sURL) {
 								<td><label for="ls_password" class="z psw_w">Password</label></td>
 								<td><input type="password" name="password" id="ls_password" class="px vm" autocomplete="off" /></td>
 								<td class="fastlg_l"><button type="submit" class="pn vm" name="loginsubmit" value="true" style="width:75px;"><em>Login In</em></button></td>
-								<td>&nbsp;<a href="{{ url_for('bbs.bbs_register') }}" class="xi2 xw1">Sign Up Now</a></td>
+								<td>&nbsp;<a href="{{ url_for('user_info.register_user') }}" class="xi2 xw1">Sign Up Now</a></td>
 							</tr>
 						</table>
 					</div>
@@ -121,7 +112,7 @@ function setHomepage(sURL) {
 		</div>
 	</div>
 </div>
-<!--REG START-->
+
 <div id="wp" class="wp">
 	<div id="ct" class="ptm wp cl">
 		<div class="mn">
@@ -175,7 +166,7 @@ function setHomepage(sURL) {
 										<tr>
 											<th><span class="rq">*</span><label for="yzm">验证码:</label></th>
 											<td><input style="width:50px;" maxlength="4" type="text" id="yzm" name="yzm" onfocus="checkReg('yzm')" size="25" class="px" /><br /><em id="emailmore">&nbsp;</em></td>
-											<td class="tipcol"><i id="tip_yzm" class="p_tip"><img src="{{ url_for('static', filename='foreground/images/vc.png') }}" id="p_yzm" onclick="show('p_yzm')" style="cursor:pointer" /> <a href="" onclick="show('p_yzm')">看不清？</a></i></td>
+											<td class="tipcol"><i id="tip_yzm" class="p_tip"><img src="verify.php" id="p_yzm" onclick="show('p_yzm')" style="cursor:pointer" /> <a href="javascript:;" onclick="show('p_yzm')">看不清？</a></i></td>
 										</tr>
 									</table>
 								</div>
@@ -205,6 +196,9 @@ function setHomepage(sURL) {
 		</div>
 	</div>
 </div>
+
+
+
 <script>
 function checkReg(obj){
 	document.getElementById('tip_'+obj).style.display='block';
@@ -222,25 +216,6 @@ function show(obj){
 	document.getElementById(obj).src='verify.php?math='+Math.random();
 }
 </script>
-<!--REG END-->
-
-<!--FOOT start-->
-<!--{include footer.html}-->
-<!--FOOT end-->
-<div id="ft" class="wp cl">
-	<div id="flk" class="y">
-		<p>
-		<a href="#" >{{sponsor.icp}}</a><span class="pipe">|</span><strong><a href="" target="_blank">{{sponsor.btm}}</a></strong>
-		</p>
-		<p class="xs0">
-			Time Now Is: {{time_now}}
-		</p>
-	</div>
-	<div id="frt">
-		<p>Powered by <strong><a href="" target="_blank">{{sponsor.sname}}</a></strong> <em>V2</em></p>
-		<p class="xs0">&copy; {{current_year}} <a href="" target="_blank">{{sponsor.inc}} Inc.</a></p>
-	</div>
-</div>
 </body>
 </html>
 

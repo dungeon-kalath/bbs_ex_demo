@@ -6,11 +6,11 @@
 <!--HEAD start-->
 <!--{include head.html}-->
 <!--HEAD end-->
-<link rel="stylesheet" type="text/css" href="{$domain_resource}/css/post.css" />
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='foreground/css/post.css')}}" />
 <!--LIST start-->
 <div id="wp" class="wp">
 	<div id="pt" class="bm cl">
-			<div class="z"><a href="./" class="nvhm" title="{$title}">{$title}</a><em>&raquo;</em><a href="index.php">论坛</a><em>&raquo;</em><a href="index.php?bigid={$bigId}">{$bigName}</a><em>&raquo;</em><a href="list.php?classid={$smallId}">{$smallName}</a><em>&raquo;</em>发表帖子</div>
+			<div class="z"><a href="../background" class="nvhm" title="{$title}">{$title}</a><em>&raquo;</em><a href="index.php">论坛</a><em>&raquo;</em><a href="index.php?bigid={$bigId}">{$bigName}</a><em>&raquo;</em><a href="list.php?classid={$smallId}">{$smallName}</a><em>&raquo;</em>发表帖子</div>
 	</div>
 	<form method="post" autocomplete="off" id="postform" action="addc.php">
 	<div id="ct" class="ct2_a ct2_a_r wp cl">
