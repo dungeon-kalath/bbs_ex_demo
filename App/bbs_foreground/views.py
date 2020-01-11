@@ -7,7 +7,7 @@ import datetime
 
 from flask import Blueprint, render_template, request, redirect, url_for, session, make_response
 from flask_login import login_required
-from sqlalchemy import func
+from sqlalchemy import func, and_
 
 from App.extensions import db
 from App.models import Category, User, Link, Sponsor, Post
@@ -72,14 +72,42 @@ def bbs_index(cid=0):
 
 @bbs.route("/list/<int:cid>/")
 def list_category(cid):
-    return "post list"
+    # return "post list"
+    #  sponsor object
+    sponsor = Sponsor.query.first()
+    # current date
+    current_year = datetime.datetime.now().year
+    time_now = datetime.datetime.now().strftime("%m-%d %H:%M")
+
+    other_layer = Category.query.filter(Category.cid == cid).all()
+    other_layer_name = other_layer[0].classname
+    other_layer_parent = other_layer[0].parentid
+
+    first_layer = Category.query.filter(and_(Category.parentid == 0, Category.cid == other_layer_parent)).all()
+    first_layer_name = first_layer[0].classname
+
+    compere_name = other_layer[0].compere
+    post_num = other_layer[0].postcount
+
+
+    # query first level data
+    first_layer_category = Category.query.filter(Category.parentid == 0).all()
+    # query other levels data
+    other_layer_category = Category.query.filter(Category.parentid != 0).all()
+
+    return render_template("foreground/list.html", **locals())
+
 
 
 @bbs.route("/publish/")
 # login required to publish a post
 @login_required
 def publish_post():
-    return "post"
+    sponsor = Sponsor.query.first()
+    # current date
+    current_year = datetime.datetime.now().year
+    time_now = datetime.datetime.now().strftime("%m-%d %H:%M")
+    return render_template("foreground/detail.html", **locals())
 
 
 @bbs.route("/login/")

@@ -53,7 +53,6 @@ def user_register():
     # current date
     current_year = datetime.datetime.now().year
     time_now = datetime.datetime.now().strftime("%m-%d %H:%M")
-    # global v_code
 
     if request.method == "GET":
         # v_code = VerifyCode().generate()

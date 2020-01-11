@@ -6,7 +6,8 @@
 <!--HEAD start-->
 <!--{include head.html}-->
 <!--HEAD end-->
-
+{% extends "foreground/base.html" %}
+{% block content %}
 <!--LIST start-->
 <div id="wp" class="wp">
 	<div id="pt" class="bm cl">
@@ -444,7 +445,7 @@ function showdpic(obj1,obj2){
 	</div>
 	</form>
 </div>
-
+{% endblock %}
 </body>
 </html>
 
