@@ -3,13 +3,16 @@
 # @Theme   ： manage user information, maintenance, registration, logging actions of users
 # @Time    : 2020/1/7 18:40
 # @Author  : Kalath
+import datetime
 from hashlib import md5
 
 from flask_login import login_user, logout_user
 
-from App.models import User
+from App.models import User, Sponsor
 from App.extensions import db
-from flask import Blueprint, request, redirect, url_for, render_template
+from flask import Blueprint, request, redirect, url_for, render_template, session
+
+from App.tools import RegisterForm
 
 user_info = Blueprint("user_info", __name__, url_prefix="/user")
 
@@ -42,23 +45,50 @@ def user_logout():
     return redirect(url_for("bbs.bbs_index"))
 
 
-# @user_info.route("/register/", methods=["GET", "POST"])
-# def register_user():
-#     if request.method == "GET":
-#         return render_template("foreground/reg.html")
-#     else:
-#         data = request.form
-#         uname = data.get("username")
-#         upsw = data.get("password")
-#         umail = data.get("mail")
-#
-#         if not User.query.filter(User.username == uname).first():
-#             user = User()
-#             user.username = uname
-#             user.password = upsw
-#             user.email = umail
-#             db.session.add(user)
-#             db.session.commit()
-#         else:
-#             return render_template("foreground/reg.html")
-#         return redirect(url_for("bbs.bbs_index"))
+@user_info.route("/register/", methods=["GET", "POST"])
+def user_register():
+    formm = RegisterForm()
+    #  sponsor object
+    sponsor = Sponsor.query.first()
+    # current date
+    current_year = datetime.datetime.now().year
+    time_now = datetime.datetime.now().strftime("%m-%d %H:%M")
+    # global v_code
+
+    if request.method == "GET":
+        # v_code = VerifyCode().generate()
+        return render_template("foreground/reg.html", **locals())
+    else:
+        # check whether the form information filled by the user meets all of the restrictions
+        if formm.validate_on_submit():
+            # data = request.form
+            # uname = data.get("username")
+            # upsw = data.get("password")
+            # upsw_r = data.get("repassword")
+            # umail = data.get("mail")
+            # v_code = request.form.get("yzm")
+            # only if all restrictions are met , get user information
+            uname = formm.username.data
+            upsw = formm.password.data
+            upsw_r = formm.confirm.data
+            umail = formm.email.data
+            v_code = formm.verification_code.data
+            # print(v_code, session['code'])
+            # Determine whether the verification code is correct
+            if session['code'] != v_code:
+                war = "Verification code error"
+                return render_template("foreground/reg.html", **locals())
+            elif (not User.query.filter(User.username == uname).first()) and upsw == upsw_r:
+                # save user information and insert data into the database
+                user = User()
+                user.username = uname
+                user.password = upsw
+                user.email = umail
+                user.portrait = "foreground/images/avatar_blank.gif"
+                db.session.add(user)
+                db.session.commit()
+                return redirect(url_for("bbs.bbs_index"))
+            else:
+                return render_template("foreground/reg.html", **locals())
+        else:
+            return render_template("foreground/reg.html", **locals())

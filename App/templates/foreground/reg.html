@@ -6,158 +6,62 @@
 <!--HEAD start-->
 <!--{include head.html}-->
 <!--HEAD end-->
+{% extends "foreground/base.html" %}
+{% block content %}
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<title>{{ title }}</title>
-	<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7" />
-	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='foreground/css/style.css')}}" />
-	<!--{if $thispage=="index.php"}-->
-	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='foreground/css/index.css')}}" />
-	<!--{elseif $thispage=='list.php'}-->
-	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='foreground/css/list.css')}}" />
-	<!--{elseif $thispage=='detail.php'}-->
-	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='foreground/css/view.css')}}" />
-	<!--{elseif $thispage=='user.php'}-->
-	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='foreground/css/home.css')}}" />
-	<!--{/if}-->
-</head>
-
-<body>
-
-<div id="toptb" class="cl">
-	<div class="wp">
-		<div class="z"><a href="javascript:;" onclick="setHomepage('{$web_url}')" >Set as homepage</a><a href="javascript:;" onclick="window.external.AddFavorite(location.href,document.title);return false;">Add to favorite</a></div>
-	</div>
-</div>
-<script>
-function setHomepage(sURL) {
-
-		document.body.style.behavior = 'url(#default#homepage)';
-		document.body.setHomePage(sURL);
-
-}
-</script>
-
-<div id="hd">
-	<div class="wp">
-		<div class="hdc cl">
-			<h2><a href="./" title="{$title}"><img src="{{ url_for('static', filename='foreground/images/logo.jpg')}}" height="80" border="0" /></a></h2>
-            {% if current_user.is_authenticated %}
-				<div id="um">
-					<div class="avt y"><a href="home_tx.php"><img src="{{ url_for("static", filename=current_user.portrait)}}" /></a></div>
-					<p>
-					<strong class="vwmy"><a href="home.php" target="_blank">{{ current_user.username }}</a></strong>
-					<span class="pipe">|</span><a href="home.php">Settings</a>
-					{% if current_user.usertype %}
-					    <span class="pipe">|</span><a href="admin.php" target="_blank">Menu</a>
-					{% endif %}
-					<span class="pipe">|</span><a href="{{ url_for( 'user_info.user_logout' ) }}">Logout</a>
-					</p>
-					<p>
-					<a id="extcreditmenu" href="#">Point: {{ current_user.grade }}</a>
-					<span class="pipe">|</span>User Permission: {{"Administrator" if current_user.usertype else "Ordinary user" }}
-					</p>
-				</div>
-				{% else %}
-				<form method="post" autocomplete="off" id="lsform" action="{{ url_for( 'user_info.user_login' ) }}">
-				<div class="fastlg cl">
-					<div class="y pns">
-						<table cellspacing="0" cellpadding="0">
-							<tr>
-								<td><span class="ftid">Username</span></td>
-								<td><input type="text" name="username" value="" id="ls_username" autocomplete="off" class="px vm" /></td>
-								<td class="fastlg_l">
-									<label for="ls_cookietime"><input type="checkbox" name="cookietime" id="ls_cookietime" class="pc" value="true" />Log On Automatically</label>
-								</td>
-								<td>&nbsp;<a href="getpass.php">Forgot password</a></td>
-							</tr>
-							<tr>
-								<td><label for="ls_password" class="z psw_w">Password</label></td>
-								<td><input type="password" name="password" id="ls_password" class="px vm" autocomplete="off" /></td>
-								<td class="fastlg_l"><button type="submit" class="pn vm" name="loginsubmit" value="true" style="width:75px;"><em>Login In</em></button></td>
-								<td>&nbsp;<a href="{{ url_for('bbs.bbs_register') }}" class="xi2 xw1">Sign Up Now</a></td>
-							</tr>
-						</table>
-					</div>
-				</div>
-				</form>
-            {% endif %}
-		</div>
-
-		<div id="nv">
-			<ul>
-				<li class="a" id="mn_forum" ><a href="{{url_for('bbs.bbs_index')}}" hidefocus="true" title="{$web_name}">Index</a><span>{$web_name}</span></li>
-				{% for category in first_layer_category %}
-				<li class="a" id="mn_home" ><a href="/{{category.cid}}" hidefocus="true" title="Space">{{ category.classname }}</a></li>
-				{% endfor %}
-
-
-			</ul>
-		</div>
-
-		<div id="scbar" class="cl">
-			<form id="scbar_form" method="get" autocomplete="off" action="search.php" target="_blank">
-			<table cellspacing="0" cellpadding="0">
-				<tr>
-					<td class="scbar_icon_td"></td>
-					<td class="scbar_txt_td"><input type="text" name="keywords" id="scbar_txt" onfocus="if(this.value=='search content'){this.value='';this.style.color='#666';}" onblur="if(this.value==''){this.value='search content';this.style.color='#ccc';}" value="search content" style="color:#CCCCCC" autocomplete="off" /></td>
-					<td class="scbar_btn_td">
-						<button type="submit" name="searchsubmit" id="scbar_btn" class="pn pnc" value="true"><strong class="xi2 xs2">search</strong></button>
-					</td>
-					<td class="scbar_hot_td">
-						<div id="scbar_hot">
-							<strong class="xw1">Trending Topic: </strong>
-							<!--{loop $keyWords $kwVal}-->
-							<a href="search.php?keywords={$kwVal}" target="_blank" class="xi2">{{ "python" }}</a>
-							<!--{/loop}-->
-						</div>
-					</td>
-				</tr>
-			</table>
-			</form>
-		</div>
-	</div>
-</div>
 <!--REG START-->
 <div id="wp" class="wp">
 	<div id="ct" class="ptm wp cl">
 		<div class="mn">
 			<div class="bm" id="main_message">
 				<div class="bm_h bbs" id="main_hnav">
-					<h3 id="layer_reginfo_t" class="xs2">立即注册</h3>
+					<h3 id="layer_reginfo_t" class="xs2">Register now</h3>
 				</div>
 				<p id="returnmessage4"></p>
 				<form method="post" autocomplete="off" name="register" id="registerform" action="">
-					<div id="layer_reg" class="bm_c">
+					{{ formm.csrf_token }}
+                    <div id="layer_reg" class="bm_c">
 						<div class="mtw">
 							<div id="reginfo_a">
 								<div class="rfm">
 									<table>
 										<tr>
-											<th><span class="rq">*</span><label for="5sMVeV">用户名:</label></th>
-											<td><input type="text" id="5sMVeV" onblur="checkRegOut('5sMVeV','请输入用户名');" onfocus="checkReg('5sMVeV')" name="username" class="px" autocomplete="off" size="25" maxlength="15"/></td>
-											<td class="tipcol"><i id="tip_5sMVeV" class="p_tip">用户名由 3 到 12 个字符组成</i></td>
+											<th><span class="rq">*</span><label for="5sMVeV">Username:</label></th>
+											<td>
+                                                {{ formm.username(placeholder="Please enter username") }}
+                                                {% for error in formm.username.errors %}
+                                                    <span>{{ error }}</span>
+                                                {% endfor %}
+                                            </td>
+
 										</tr>
 									</table>
 								</div>
 								<div class="rfm">
 									<table>
 										<tr>
-											<th><span class="rq">*</span><label for="WXETc3">密码:</label></th>
-											<td><input type="password" id="WXETc3" onblur="checkRegOut('WXETc3','请输入密码');" onfocus="checkReg('WXETc3')" name="password" size="25" class="px" /></td>
-											<td class="tipcol"><i id="tip_WXETc3" class="p_tip">请填写密码,由 3 到 12 个字符组成</i></td>
+											<th><span class="rq">*</span><label for="WXETc3">Password:</label></th>
+											<td>
+                                                {{ formm.password(placeholder="Please enter password") }}
+                                                {% for error in formm.password.errors %}
+                                                     <span>{{ error }}</span>
+                                                {% endfor %}
+                                            </td>
+
 										</tr>
 									</table>
 								</div>
 								<div class="rfm">
 									<table>
 										<tr>
-											<th><span class="rq">*</span><label for="LzI33d">确认密码:</label></th>
-											<td><input type="password" id="LzI33d" onblur="checkRegOut('LzI33d','请确认密码');" onfocus="checkReg('LzI33d')" name="repassword" size="25" class="px" /></td>
-											<td class="tipcol"><i id="tip_LzI33d" class="p_tip">请再次输入密码</i></td>
+											<th><span class="rq">*</span><label for="LzI33d">Confirm Password:</label></th>
+											<td>
+                                                {{ formm.confirm(placeholder="Please enter password again") }}
+                                                {% for error in formm.confirm.errors %}
+                                                   <span>{{ error }}</span>
+                                                {% endfor %}
+                                            </td>
+
 										</tr>
 									</table>
 								</div>
@@ -165,17 +69,31 @@ function setHomepage(sURL) {
 									<table>
 										<tr>
 											<th><span class="rq">*</span><label for="FQ817D">Email:</label></th>
-											<td><input type="text" id="FQ817D" name="mail"  onblur="checkRegOut('FQ817D','请输入正确的邮箱地址');" onfocus="checkReg('FQ817D')" size="25" class="px" /><br /><em id="emailmore">&nbsp;</em></td>
-											<td class="tipcol"><i id="tip_FQ817D" class="p_tip">请输入正确的邮箱地址</i></td>
+											<td>
+                                                    {{ formm.email(placeholder="Please enter email address") }}
+                                                    {% for error in formm.email.errors %}
+                                                        <span>{{ error }}</span>
+                                                    {% endfor %}
+                                            </td>
+
 										</tr>
 									</table>
 								</div>
 								<div class="rfm">
 									<table>
 										<tr>
-											<th><span class="rq">*</span><label for="yzm">验证码:</label></th>
-											<td><input style="width:50px;" maxlength="4" type="text" id="yzm" name="yzm" onfocus="checkReg('yzm')" size="25" class="px" /><br /><em id="emailmore">&nbsp;</em></td>
-											<td class="tipcol"><i id="tip_yzm" class="p_tip"><img src="{{ url_for('static', filename='foreground/images/vc.png') }}" id="p_yzm" onclick="show('p_yzm')" style="cursor:pointer" /> <a href="" onclick="show('p_yzm')">看不清？</a></i></td>
+											<th><span class="rq">*</span><label for="yzm">Verification Code:</label></th>
+											<td>
+                                                    {{ formm.verification_code(placeholder="Please enter verification code") }}
+                                                    {% for error in formm.verification_code.errors %}
+                                                        <span>{{ error }}</span>
+                                                    {% endfor %}
+                                            {% if war %}
+                                                <span>{{ war }}</span>
+                                            {% endif %}
+                                            <img src="{{ url_for('bbs.show_code') }}" name="vc" id="p_yzm" onclick="show('p_yzm')" style="cursor:pointer" />
+                                            <a target="p_yzm" onclick="show('p_yzm')">Refresh</a>
+                                            </td>
 										</tr>
 									</table>
 								</div>
@@ -190,9 +108,7 @@ function setHomepage(sURL) {
 									<td>
 									<span id="reginfo_a_btn">
 									<em>&nbsp;</em>
-									<button class="pn pnc" id="registerformsubmit" type="submit" name="regsubmit" value="true">
-										<strong>提交</strong>
-									</button>
+                                        <input type="submit">
 									</span>
 									</td>
 									<td></td>
@@ -219,28 +135,10 @@ function checkRegOut(obj,test){
 }
 
 function show(obj){
-	document.getElementById(obj).src='verify.php?math='+Math.random();
+	document.getElementById(obj).src="{{ url_for('bbs.show_code')}}?math="+Math.random();
 }
 </script>
 <!--REG END-->
 
-<!--FOOT start-->
-<!--{include footer.html}-->
-<!--FOOT end-->
-<div id="ft" class="wp cl">
-	<div id="flk" class="y">
-		<p>
-		<a href="#" >{{sponsor.icp}}</a><span class="pipe">|</span><strong><a href="" target="_blank">{{sponsor.btm}}</a></strong>
-		</p>
-		<p class="xs0">
-			Time Now Is: {{time_now}}
-		</p>
-	</div>
-	<div id="frt">
-		<p>Powered by <strong><a href="" target="_blank">{{sponsor.sname}}</a></strong> <em>V2</em></p>
-		<p class="xs0">&copy; {{current_year}} <a href="" target="_blank">{{sponsor.inc}} Inc.</a></p>
-	</div>
-</div>
-</body>
-</html>
+{% endblock %}
 

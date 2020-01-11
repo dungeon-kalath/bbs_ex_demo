@@ -10,8 +10,8 @@ from flask_login import login_required
 from sqlalchemy import func
 
 from App.extensions import db
-from App.models import Category, User, Link, Sponsor
-from App.tools import VerifyCode
+from App.models import Category, User, Link, Sponsor, Post
+from App.tools import VerifyCode, RegisterForm
 
 bbs = Blueprint("bbs", __name__)
 
@@ -32,7 +32,7 @@ def bbs_index(cid=0):
     # number of posts
     posts = db.session.query(func.sum(Category.postcount)).group_by(Category.parentid).having(Category.parentid == 0).all()[0][0]
     res = db.session.execute("select sum(replycount) from bbs_category")
-    print(res.fetchall())
+    # print(res.fetchall())
 
     # number of replies
     replies = db.session.query(func.sum(Category.replycount)).group_by(Category.parentid).having(Category.parentid == 0).all()[0][0]
@@ -48,7 +48,13 @@ def bbs_index(cid=0):
     current_year = datetime.datetime.now().year
     time_now = datetime.datetime.now().strftime("%m-%d %H:%M")
 
-    # post_s = Details.query.all()
+    # last post part
+    subcat_nums = len(Category.query.filter(Category.parentid != 0).all())
+    subcat_id = [x.cid for x in Category.query.filter(Category.parentid != 0).all()]
+    post_s = list()
+    for i in range(subcat_nums):
+        post_l = Post.query.filter(Post.classid == subcat_id[i]).first()
+        post_s.append(post_l)
 
     # if cid not equal to 0, find the specific section
     if cid != 0:
@@ -59,7 +65,7 @@ def bbs_index(cid=0):
         return render_template("foreground/index.html", **locals())
     # cid equals to 0, show every section
     else:
-        # return render_template("foreground/index.html", big_category=big_category, cid=cid,
+        # return render_template("foreground/index1.html", big_category=big_category, cid=cid,
         #                        small_category=small_category)
         return render_template("foreground/index.html", **locals())
 
@@ -81,43 +87,13 @@ def bbs_login():
     return "login page"
 
 
-@bbs.route("/register/", methods=["GET", "POST"])
-def bbs_register():
-    #  sponsor object
-    sponsor = Sponsor.query.first()
-    # current date
-    current_year = datetime.datetime.now().year
-    time_now = datetime.datetime.now().strftime("%m-%d %H:%M")
-    global v_code
-
-    if request.method == "GET":
-
-        v_code = VerifyCode().generate()
-        return render_template("foreground/reg.html", **locals())
-    else:
-        data = request.form
-        uname = data.get("username")
-        upsw = data.get("password")
-        upsw_r = data.get("repassword")
-        umail = data.get("mail")
-        vc = data.get("yzm")
-        print(vc)
-
-        if not User.query.filter(User.username == uname).first() and upsw == upsw_r and v_code == vc:
-            user = User()
-            user.username = uname
-            user.password = upsw
-            user.email = umail
-            db.session.add(user)
-            db.session.commit()
-            return redirect(url_for("bbs.bbs_index"))
-        else:
-            return render_template("foreground/reg.html", **locals())
-
-
 @bbs.route("/code/")
 def show_code():
+    # generate verification code
     vc = VerifyCode()
-    vc.generate()
-
-    return ""
+    res = vc.generate()
+    # save the verification code into the session
+    session['code'] = vc.code
+    response = make_response(res)
+    response.headers['content-type'] = 'image/png'
+    return response
