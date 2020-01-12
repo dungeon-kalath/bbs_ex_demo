@@ -11,7 +11,7 @@ from sqlalchemy import func, and_
 
 from App.extensions import db
 from App.models import Category, User, Link, Sponsor, Post
-from App.tools import VerifyCode, RegisterForm
+from App.tools import VerifyCode
 
 bbs = Blueprint("bbs", __name__)
 
@@ -21,7 +21,7 @@ bbs = Blueprint("bbs", __name__)
 def bbs_index(cid=0):
     """
 
-    :param cid: default value is 0, show every section. For other values, show specific section.
+    :param cid: default value is 0, show every section. For other values, show specified section.
     :return:
     """
     # query first level data
@@ -56,7 +56,7 @@ def bbs_index(cid=0):
         post_l = Post.query.filter(Post.classid == subcat_id[i]).first()
         post_s.append(post_l)
 
-    # if cid not equal to 0, find the specific section
+    # if cid not equal to 0, find the specified section
     if cid != 0:
         for sub_category in first_layer_category:
             if sub_category.cid == cid:
@@ -70,49 +70,108 @@ def bbs_index(cid=0):
         return render_template("foreground/index.html", **locals())
 
 
-@bbs.route("/list/<int:cid>/")
-def list_category(cid):
-    # return "post list"
+@bbs.route("/list/<int:cid>/<int:page>/")
+def list_category(cid, page=1):
     #  sponsor object
     sponsor = Sponsor.query.first()
     # current date
     current_year = datetime.datetime.now().year
     time_now = datetime.datetime.now().strftime("%m-%d %H:%M")
 
+    # query to find the specified sub-section
     other_layer = Category.query.filter(Category.cid == cid).all()
     other_layer_name = other_layer[0].classname
     other_layer_parent = other_layer[0].parentid
 
+    # find first-level section according to the sub-section
     first_layer = Category.query.filter(and_(Category.parentid == 0, Category.cid == other_layer_parent)).all()
     first_layer_name = first_layer[0].classname
+    first_layer_cid = first_layer[0].cid
 
     compere_name = other_layer[0].compere
     post_num = other_layer[0].postcount
 
+    classid =cid
 
     # query first level data
     first_layer_category = Category.query.filter(Category.parentid == 0).all()
     # query other levels data
     other_layer_category = Category.query.filter(Category.parentid != 0).all()
 
+    # Show posts by pagination
+    pagenation = Post.query.paginate(page, 10)
+    data = {
+        # Data list of current page
+        'posts': pagenation.items,
+        # Current page number
+        'current': pagenation.page,
+        # Number of posts per page
+        'per_page': pagenation.per_page,
+        # Total number of pages
+        'pages': pagenation.pages,
+        # Next page number
+        'next': pagenation.next_num,
+        # Previous page number
+        'pre': pagenation.prev_num
+    }
+    posts = data["posts"]
     return render_template("foreground/list.html", **locals())
 
 
-
-@bbs.route("/publish/")
+@bbs.route("/publish/<int:cid>/", methods=["GET", "POST"])
 # login required to publish a post
 @login_required
-def publish_post():
+def publish_post(cid):
     sponsor = Sponsor.query.first()
     # current date
     current_year = datetime.datetime.now().year
     time_now = datetime.datetime.now().strftime("%m-%d %H:%M")
-    return render_template("foreground/detail.html", **locals())
+
+    # query to find the specified sub-section
+    other_layer = Category.query.filter(Category.cid == cid).all()
+    other_layer_name = other_layer[0].classname
+    other_layer_parent = other_layer[0].parentid
+
+    # find first-level section according to the sub-section
+    first_layer = Category.query.filter(and_(Category.parentid == 0, Category.cid == other_layer_parent)).all()
+    first_layer_name = first_layer[0].classname
+    first_layer_cid = first_layer[0].cid
+
+    if request.method == "GET":
+        return render_template("foreground/addc.html", **locals())
+    else:
+        # add a record of the post to the database
+        post_title = request.form.get("subject")
+        post_content = request.form.get("content")
+        post_price = request.form.get("price")
+        post = Post()
+        post.authorid = session['user_id']
+        post.title = post_title
+        post.content = post_content
+        post.addtime = int(datetime.datetime.now().strftime("%Y%m%d"))
+        post.addip = 1123133
+        post.classid = cid
+        post.replycount = 0
+        post.hits = 0
+        post.istop = 0
+        post.elite = 0
+        post.ishot = 0
+        post.rate = 0
+        post.isdel = 0
+        post.isdisplay = 0
+        db.session.add(post)
+        db.session.commit()
+        return redirect(url_for("bbs.list_category", cid=cid))
 
 
 @bbs.route("/login/")
 def bbs_login():
-    return "login page"
+    # the login page
+    sponsor = Sponsor.query.first()
+    # current date
+    current_year = datetime.datetime.now().year
+    time_now = datetime.datetime.now().strftime("%m-%d %H:%M")
+    return render_template("foreground/addc-login.html", **locals())
 
 
 @bbs.route("/code/")

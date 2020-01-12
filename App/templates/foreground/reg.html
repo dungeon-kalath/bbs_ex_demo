@@ -84,8 +84,8 @@
 										<tr>
 											<th><span class="rq">*</span><label for="yzm">Verification Code:</label></th>
 											<td>
-                                                    {{ formm.verification_code(placeholder="Please enter verification code") }}
-                                                    {% for error in formm.verification_code.errors %}
+                                                    {{ formm.verificationcode(placeholder="Please enter verification code") }}
+                                                    {% for error in formm.verificationcode.errors %}
                                                         <span>{{ error }}</span>
                                                     {% endfor %}
                                             {% if war %}

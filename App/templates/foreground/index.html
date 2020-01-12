@@ -6,7 +6,7 @@
 <div id="wp" class="wp">
 	<div id="pt" class="bm cl">
 		<div class="z">
-			<a href="./" class="nvhm" title="{$title}">{$title}</a><em>&raquo;</em><a href="index.php">Forum</a>
+			<a href="" class="nvhm" title="Kalath Forum">Kalath Forum</a><em>&raquo;</em><a href="{{ url_for("bbs.bbs_index") }}">Forum</a>
             {% if cid %}
             <em>&raquo;</em><a href="">{{ the_category.classname }}</a>
             {% endif %}
@@ -32,7 +32,7 @@
 					{% for category in first_layer_category %}
 						<div class="bm bmw  cl">
 					<div class="bm_h cl">
-						<h2><a href="{{url_for('bbs.list_category', cid=category.cid)}}">{{category.classname}}</a></h2>
+						<h2><a href="/{{category.cid}}">{{category.classname}}</a></h2>
 					</div>
 					<div id="category_1" class="bm_c">
 						<table cellspacing="0" cellpadding="0" class="fl_tb">
@@ -40,10 +40,10 @@
 								{% if other.parentid == category.cid %}
 									<tr class="fl_row">
 									<td class="fl_icn" >
-										<a href="{{url_for('bbs.list_category', cid=other.cid)}}"><img src="{{ url_for('static', filename=other.classpic)}}" alt="{{ other.classname }}" /></a>
+										<a href="{{url_for('bbs.list_category', cid=other.cid, page=1)}}"><img src="{{ url_for('static', filename=other.classpic)}}" alt="{{ other.classname }}" /></a>
 									</td>
 									<td>
-										<h2><a href="{{url_for('bbs.list_category', cid=other.cid)}}" style="color:{$val['namestyle']}">{{ other.classname }}</a></h2>
+										<h2><a href="{{url_for('bbs.list_category', cid=other.cid, page=1)}}" style="color:{$val['namestyle']}">{{ other.classname }}</a></h2>
 										{% if other.description %}
 											<p class="xg2">{{ other.description }}</p>
 										{% endif %}
@@ -75,7 +75,7 @@
 				{% else %}
 					<div class="bm bmw  cl">
 					<div class="bm_h cl">
-						<h2><a href="{{url_for('bbs.list_category', cid=the_category.cid)}}">{{the_category.classroom}}</a></h2>
+						<h2><a href="/{{cid}}">{{the_category.classname}}</a></h2>
 					</div>
 					<div id="category_1" class="bm_c">
 						<table cellspacing="0" cellpadding="0" class="fl_tb">

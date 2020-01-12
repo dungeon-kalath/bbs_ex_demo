@@ -71,13 +71,13 @@ def user_register():
             upsw = formm.password.data
             upsw_r = formm.confirm.data
             umail = formm.email.data
-            v_code = formm.verification_code.data
+            # v_code = formm.verificationcode.data
             # print(v_code, session['code'])
             # Determine whether the verification code is correct
-            if session['code'] != v_code:
-                war = "Verification code error"
-                return render_template("foreground/reg.html", **locals())
-            elif (not User.query.filter(User.username == uname).first()) and upsw == upsw_r:
+            # if session['code'] != v_code:
+            #     war = "Wrong verification code"
+            #     return render_template("foreground/reg.html", **locals())
+            if (not User.query.filter(User.username == uname).first()) and upsw == upsw_r:
                 # save user information and insert data into the database
                 user = User()
                 user.username = uname

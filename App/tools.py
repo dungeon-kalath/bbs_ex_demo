@@ -7,10 +7,11 @@ import random
 import string
 
 from PIL import ImageFont, ImageDraw, Image
+from flask import session
 from flask_wtf import FlaskForm
 from six import BytesIO
 from wtforms import StringField, PasswordField
-from wtforms.validators import DataRequired, Length, EqualTo, Email
+from wtforms.validators import DataRequired, Length, EqualTo, Email, ValidationError
 
 
 class VerifyCode:
@@ -97,4 +98,9 @@ class RegisterForm(FlaskForm):
     password = PasswordField(validators=[DataRequired("Password must be entered"), Length(min=3, max=12, message="Password must contain 3 to 12 characters")])
     confirm = PasswordField(validators=[DataRequired("Password must be entered"), EqualTo("password", message="Two password entries do not match")])
     email = StringField(validators=[DataRequired("Please enter your email address"), Email(message="Invalid mailbox format")])
-    verification_code = StringField(validators=[DataRequired("Please enter verification code"), Length(min=4, max=4, message="Wrong verification code length")])
+    verificationcode = StringField(validators=[DataRequired("Please enter verification code"), Length(min=4, max=4, message="Wrong verification code length")])
+
+    # Custom validation method
+    def validate_verificationcode(self, field):
+        if session['code'] != field.data:
+            raise ValidationError("Wrong verification code")
