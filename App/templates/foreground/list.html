@@ -106,7 +106,9 @@
 							</td>
 							<td class="num"><a href="" class="xi2">{{post.replycount}}</a><em>{{post.hits}}</em></td>
 							<td class="by">
-							${creatLast(getListUName($val['id']))}
+							    {{ reply_dict[post.id][0] }}
+                                <br>
+                                {{ reply_dict[post.id][1] }}
 							</td>
 						</tr>
 					{% endfor %}
@@ -119,7 +121,18 @@
 				<span  class="pgb y"><a href="{{ url_for("bbs.bbs_index") }}">Return</a></span>
 				<a href="{{ url_for('bbs.publish_post', cid=classid) }}" id="newspecialtmp" title="New post"><img src="{{ url_for('static', filename = "foreground/images/pn_post.png") }}" alt="New post" /></a></div>
 				<div style="width:800px; margin:0 auto; padding:10px 0px; text-align:right">
-				${fpage($zCount,$linum,[8,3,4,5,6,7,0,1,2])}
+                    <a href="{{ url_for('bbs.list_category',cid=classid ,page=1) }}">首页</a>
+                    {% if data["pre"] %}
+                    <a href="{{ url_for('bbs.list_category',cid=classid ,page=data["pre"]) }}">上一页</a>
+                    {% else %}
+                    <a>上一页</a>
+                    {% endif %}
+                    {% if data["next"] %}
+                    <a href="{{ url_for('bbs.list_category',cid=classid ,page=data["next"]) }}">下一页</a>
+                    {% endif %}
+
+                    <a href="{{ url_for('bbs.list_category',cid=classid ,page=data["pages"]) }}">尾页</a>
+                    <p>共有<span>{{ data["total"] }}</span>条记录    每页显示<span>{{ data['per_page'] }}</span>条，本页<span>1-{{ length }}</span>条    <span>{{ data['current'] }}/{{ data['pages'] }}</span>页</p>
 				</div>
 			</div>
 		</div>

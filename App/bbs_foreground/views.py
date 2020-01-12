@@ -10,7 +10,7 @@ from flask_login import login_required
 from sqlalchemy import func, and_
 
 from App.extensions import db
-from App.models import Category, User, Link, Sponsor, Post
+from App.models import Category, User, Link, Sponsor, Post, Reply
 from App.tools import VerifyCode
 
 bbs = Blueprint("bbs", __name__)
@@ -99,8 +99,10 @@ def list_category(cid, page=1):
     other_layer_category = Category.query.filter(Category.parentid != 0).all()
 
     # Show posts by pagination
-    pagenation = Post.query.paginate(page, 10)
+    pagenation = Post.query.filter(Post.classid == cid).paginate(page, 10)
     data = {
+        # Total number of posts
+        'total':pagenation.total,
         # Data list of current page
         'posts': pagenation.items,
         # Current page number
@@ -115,6 +117,38 @@ def list_category(cid, page=1):
         'pre': pagenation.prev_num
     }
     posts = data["posts"]
+    length = len(posts)
+
+    # last reply info
+    # authors = db.session.query(User, Post).filter(User.id == Post.authorid).all()
+    # print(authors)
+    # author_name_dict = dict()
+    # for post in posts:
+    #     # author_name = db.session.query(User, Post).filter(User.id == Post.authorid).group_by(User.id).having(Post.authorid == post.authorid).order_by(-Post.addtime).limit(1).first()
+    #     # if author_name:
+    #     #     author_name_dict[author_name.username] = post.authorid
+    #     #     print(author_name[1].authorid)
+    #     for author in authors:
+    #         print(author[0].id)
+    #         if author[0].id == post.authorid:
+    #             author_name_dict[author.username] = post.authorid
+    #             break
+    # print(author_name_dict)
+
+    # replies = db.session.query(Reply, Post).filter(Reply.tid == Post.id).all()
+    reply_dict = dict()
+    # print(replies)
+    for post in posts:
+        # replies = db.session.query(Reply, Post).filter(Reply.tid == Post.id).group_by(Post.id).having(Post.authorid == post.authorid).order_by(-Reply.addtime).limit(1).first()
+        rep = Reply.query.filter(Reply.tid == post.id).order_by(-Reply.addtime).limit(1).first()
+        if rep:
+            reply_dict[post.id] = list()
+            reply_dict[post.id].append(rep.authorid)
+            reply_dict[post.id].append(rep.addtime)
+        else:
+            reply_dict[post.id] = list()
+
+    # print(reply_dict)
     return render_template("foreground/list.html", **locals())
 
 

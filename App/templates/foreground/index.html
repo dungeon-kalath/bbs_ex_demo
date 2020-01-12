@@ -83,10 +83,10 @@
 								{% if other.parentid == the_category.cid %}
 									<tr class="fl_row">
 									<td class="fl_icn" >
-										<a href="{{url_for('bbs.list_category', cid=other.cid)}}"><img src="{{ url_for('static', filename=other.classpic)}}" alt="{{ other.classname }}" /></a>
+										<a href="{{url_for('bbs.list_category', cid=other.cid, page=1)}}"><img src="{{ url_for('static', filename=other.classpic)}}" alt="{{ other.classname }}" /></a>
 									</td>
 									<td>
-										<h2><a href="{{url_for('bbs.list_category', cid=other.cid)}}" style="color:{$val['namestyle']}">{{ other.classname }}</a></h2>
+										<h2><a href="{{url_for('bbs.list_category', cid=other.cid, page=1)}}" style="color:{$val['namestyle']}">{{ other.classname }}</a></h2>
 										<p class="xg2">{{ other.description }}</p>
 
 										<p>Compere: <span class="xi2">{{ other.compere }}</span></p>
