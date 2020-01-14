@@ -1,0 +1,33 @@
+<!--{include header.html}-->
+<!--TOP start-->
+<!--{include top.html}-->
+<!--TOP end-->
+
+<!--HEAD start-->
+<!--{include head.html}-->
+<!--HEAD end-->
+{% extends "foreground/base.html" %}
+{% block content %}
+<!--NOTICE START-->
+<div id="wp" class="wp">
+	<div id="ct" class="wp cl w">
+		<div class="nfl">
+			<div class="f_c altw">
+				<div id="messagetext" class="{$style}">
+				<p>{{message}}<br />
+				<script type="text/javascript" reload="1">setTimeout("location.href='{{ url_for('bbs.bbs_index') }}';", 3000);</script></p>
+				<p class="alert_btnleft"><a href="{{ url_for('bbs.bbs_index') }}">If your browser does not redirect automatically, please click this link.</a></p>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<!--NOTICE END-->
+
+<!--FOOT start-->
+<!--{include footer.html}-->
+<!--FOOT end-->
+{% endblock %}
+</body>
+</html>
+

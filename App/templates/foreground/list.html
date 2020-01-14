@@ -84,12 +84,13 @@
 				<form method="post" autocomplete="off" name="moderate" id="moderate" action="">
 				<table summary="forum_2" id="forum_2" cellspacing="0" cellpadding="0">
 					{% for post in posts %}
+
 						<tr>
 							<td class="icn">
-							<a href="" title="{{ post.title }}"><img src="{{ url_for('static', filename='foreground/images/folder_common.gif') }}" /></a>
+							<a href="{{ url_for('bbs.deleted_post', ptid=post.id) }}" title="{{ post.title }}"><img src="{{ url_for('static', filename='foreground/images/folder_common.gif') }}" /></a>
 							</td>
 							<th class="">
-							 <a href="" class="xst"  >{{ post.title }}</a>
+							 <a href="{{ url_for('bbs.list_detail', postid=post.id, page=1) }}" class="xst"  >{{ post.title }}</a>
 							 {% if post.rate > 0 %}
 							 - [Price <span class="xw1">{{post.rate}}</span> coins]
 							 {% endif %}
@@ -101,16 +102,19 @@
 {#							 <!--{/if}-->#}
 							</th>
 							<td class="by">
-							<cite>{{post.authorid}}</cite>
+							<cite>Author: {{post.authorid}}</cite>
 							<em><span class="xi1">{{ post.addtime }}</span></em>
 							</td>
 							<td class="num"><a href="" class="xi2">{{post.replycount}}</a><em>{{post.hits}}</em></td>
 							<td class="by">
-							    {{ reply_dict[post.id][0] }}
+                                {% if reply_dict[post.id][0] %}
+							    Author: {{ reply_dict[post.id][0] }}
+                                {% endif %}
                                 <br>
                                 {{ reply_dict[post.id][1] }}
 							</td>
 						</tr>
+
 					{% endfor %}
 				</table>
 				</form>
@@ -121,18 +125,18 @@
 				<span  class="pgb y"><a href="{{ url_for("bbs.bbs_index") }}">Return</a></span>
 				<a href="{{ url_for('bbs.publish_post', cid=classid) }}" id="newspecialtmp" title="New post"><img src="{{ url_for('static', filename = "foreground/images/pn_post.png") }}" alt="New post" /></a></div>
 				<div style="width:800px; margin:0 auto; padding:10px 0px; text-align:right">
-                    <a href="{{ url_for('bbs.list_category',cid=classid ,page=1) }}">首页</a>
+                    <a href="{{ url_for('bbs.list_category',cid=classid ,page=1) }}">Index</a>
                     {% if data["pre"] %}
-                    <a href="{{ url_for('bbs.list_category',cid=classid ,page=data["pre"]) }}">上一页</a>
-                    {% else %}
-                    <a>上一页</a>
+                    <a href="{{ url_for('bbs.list_category',cid=classid ,page=data["pre"]) }}">Prev</a>
+{#                    {% else %}#}
+{#                    <a>Prev</a>#}
                     {% endif %}
                     {% if data["next"] %}
-                    <a href="{{ url_for('bbs.list_category',cid=classid ,page=data["next"]) }}">下一页</a>
+                    <a href="{{ url_for('bbs.list_category',cid=classid ,page=data["next"]) }}">Next</a>
                     {% endif %}
 
-                    <a href="{{ url_for('bbs.list_category',cid=classid ,page=data["pages"]) }}">尾页</a>
-                    <p>共有<span>{{ data["total"] }}</span>条记录    每页显示<span>{{ data['per_page'] }}</span>条，本页<span>1-{{ length }}</span>条    <span>{{ data['current'] }}/{{ data['pages'] }}</span>页</p>
+                    <a href="{{ url_for('bbs.list_category',cid=classid ,page=data["pages"]) }}">End</a>
+                    | Total <span>{{ data["total"] }}</span> records |  show <span>{{ data['per_page'] }}</span> records per page |  <span>1-{{ length }}</span> record on this page  |  Page<span>{{ data['current'] }}/{{ data['pages'] }}</span>
 				</div>
 			</div>
 		</div>

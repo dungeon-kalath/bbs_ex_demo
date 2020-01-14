@@ -58,9 +58,9 @@
 										<div>
 											{% for post in post_s %}
 												{% if post.classid == other.cid %}
-													<a href="" src="" style="color: dodgerblue"> {{ post.title }} </a>
+													<a href="{{ url_for('bbs.list_detail', postid=post.id, page=1) }}" style="color: dodgerblue"> {{ post.title }} </a>
 													<br/>
-													{{ post.addtime }}
+													{{ post.addtime }} <span style="margin-left: 10px">Author:{{ post.authorid }}</span>
 												{% endif %}
 											{% endfor %}
 										</div>

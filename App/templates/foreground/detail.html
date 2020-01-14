@@ -12,7 +12,7 @@
 <div id="wp" class="wp">
 	<div id="pt" class="bm cl">
 		<div class="z">
-			<a href="./" class="nvhm" title="{$title}">{$title}</a><em>&raquo;</em><a href="index.php">论坛</a><em>&raquo;</em><a href="index.php?bigid={$bigId}">{$bigName}</a><em>&raquo;</em><a href="list.php?classid={$smallId}">{$smallName}</a><em>&raquo;</em><a href="detail.php?id={$Id}">{$Title}</a>
+			<a href="./" class="nvhm" title="{$title}">{$title}</a><em>&raquo;</em><a href="{{ url_for("bbs.bbs_index") }}">Forum</a><em>&raquo;</em><a href="/{{first_layer_cid}}">{{first_layer_name}}</a><em>&raquo;</em><a href="{{url_for('bbs.list_category', cid=cid, page=1) }}">{{other_layer_name}}</a><em>&raquo;</em><a href="detail.php?id={$Id}">{{the_post.title}}</a>
 		</div>
 		<div class="z"></div>
 	</div>
@@ -21,39 +21,41 @@
 	<div id="ct" class="wp cl">
 		<div id="pgt" class="pgs mbm cl pbm bbs">
 			<div class="pgt"></div>
-			<span class="y pgb" id="visitedforums"><a href="list.php?classid={$classId}">返回列表</a></span>
-			<a id="newspecial" href="addc.php?classid={$classId}" target="_blank" title="发新帖"><img src="{$domain_resource}/images/pn_post.png" alt="发新帖" /></a>
-			<a id="post_reply" href="#f_pst" title="回复"><img src="{$domain_resource}/images/pn_reply.png" alt="回复" /></a>
+			<span class="y pgb" id="visitedforums"><a href="">Return</a></span>
+			<a id="newspecial" href="" target="_blank" title="New post"><img src="{{ url_for('static', filename='foreground/images/pn_post.png')}}" alt="New post" /></a>
+			<a id="post_reply" href="#f_pst" title="Reply"><img src="{{ url_for('static', filename='foreground/images/pn_reply.png')}}" alt="Reply" /></a>
 		</div>
-		<!--{if $GuanLi}-->
+		{% if current_user.usertype == 1 %}
 		<div id="modmenu" class="xi2 pbm">
-			<a href="detail.php?id={$Id}&del=1">删除主题</a><span class="pipe">|</span>
-			<a href="detail.php?id={$Id}&istop=1">置顶</a><span class="pipe">|</span>
-			<a href="detail.php?id={$Id}&style=1">高亮</a><span class="pipe">|</span>
-			<a href="detail.php?id={$Id}&elite=1">精华</a><span class="pipe">|</span>
+			<a href="">Delete post</a><span class="pipe">|</span>
+			<a href="">Pin</a><span class="pipe">|</span>
+			<a href="">Highlight</a><span class="pipe">|</span>
+			<a href="{{ url_for('bbs.post_essence', ptid=postid)  }}">Essence</a><span class="pipe">|</span>
 		</div>
-		<!--{/if}-->
+		{% endif %}
+
 		<div id="postlist" class="pl bm">
 			<!--楼主 START-->
 			<!--{if $Lpage==1}-->
+
 			<table cellspacing="0" cellpadding="0">
 				<tr>
 					<td class="pls ptm pbm">
 						<div class="hm">
-							<span class="xg1">查看:</span> <span class="xi1">{$Hits}</span><span class="pipe">|</span><span class="xg1">回复:</span> <span class="xi1">{$Replycount}</span>
+							<span class="xg1">Views:</span> <span class="xi1">{{the_post.hits}}</span><span class="pipe">|</span><span class="xg1">Replies:</span> <span class="xi1">{{the_post.replycount}}</span>
 						</div>
 					</td>
 					<td class="plc ptm pbn">
 						<div class="y">
 							<!--{if $topid}-->
-							<a href="detail.php?id={$topid}" title="上一主题"><img src="{$domain_resource}/images/thread-prev.png" alt="上一主题" class="vm" /></a>
+							<a href="" title="上一主题"><img src="{{url_for('static', filename='foreground/images/thread-prev.png')}}" alt="上一主题" class="vm" /></a>
 							<!--{/if}-->
 							<!--{if $downid}-->
-							<a href="detail.php?id={$downid}" title="下一主题"><img src="{$domain_resource}/images/thread-next.png" alt="下一主题" class="vm" /></a>
+							<a href="" title="下一主题"><img src="{{url_for('static', filename='foreground/images/thread-next.png')}}" alt="下一主题" class="vm" /></a>
 							<!--{/if}-->
 						</div>
 						<h1 class="ts">
-							{$Title}
+							{{the_post.title}}
 						</h1>
 					</td>
 				</tr>
@@ -61,46 +63,65 @@
 			<style>
 			.max_pic{max-width:120px;}
 			</style>
+{#        {% for reply in the_replies %}#}
 			<div id="post_{$Id}">
+
 				<table id="pid{$Id}" cellspacing="0" cellpadding="0">
+
 					<tr>
 						<td class="pls" rowspan="2">
+
 							<div class="pi">
-								<div class="authi"><a href="#" target="_blank" class="xw1">{$U_sername}</a></div>
+								<div class="authi"><a href="#" target="_blank" class="xw1">Author: {{ the_author.id }}</a></div>
 							</div>
 							<!--显示用户信息 START-->
+
 							<div class="p_pop blk bui" id="userinfo{$Id}" style="display:none; margin-top: -11px;" onmouseout="showdpic('userinfo','{$Id}')">
 								<div class="m z">
-									<div id="userinfo{$Id}_ma"><img src="{$P_icture}" class="max_pic" /></div>
-								</div>
+                                    {% if the_author.portrait %}
+									<div id="userinfo{$Id}_ma"><img src="{{url_for('static', filename=the_author.portrait)}}" class="max_pic" /></div>
+								    {% else %}
+                                    <div id="userinfo{$Id}_ma"><img src="{{url_for('static', filename='foreground/images/avatar_blank.gif')}}" class="max_pic" /></div>
+                                    {% endif %}
+                                </div>
 								<div class="i y">
 								<div>
-								<strong>{$U_sername}</strong>
-								<em>当前在线</em>
+								<strong>Author: {{ the_author.id }}</strong>
+								<em>Online</em>
 								</div>
-								<dl class="cl"><dt>注册时间</dt><dd>{$R_egtime}</dd><dt>积分</dt><dd>{$G_rade}</dd><dt>最后登录</dt><dd>{$L_asttime}</dd></dl>
+								<dl class="cl"><dt>Register time</dt><dd>{{the_author.regtime}}</dd><dt>Points</dt><dd>{{the_author.grade}}</dd><dt>Last login time</dt><dd>{{the_author.lasttime}}</dd></dl>
 								<div class="imicn">
-								<a href="#" target="_blank" title="查看详细资料"><img src="{$domain_resource}/images/userinfo.gif" alt="查看详细资料" /></a>
+								<a href="#" target="_blank" title="detail info"><img src="{{url_for('static', filename='foreground/images/userinfo.gif')}}" alt="detail info" /></a>
 								</div>
 								<div id="avatarfeed"><span id="threadsortswait"></span></div>
 								</div>
 							</div>
 							<!--显示用户信息 END-->
+
 							<div>
 							<div class="avatar" onmouseover="showbpic('userinfo','{$Id}')">
-								<img src="{$P_icture}" class="max_pic" />
-							</div>
-							<p><em>${userGroup($U_dertype)}</em></p>
-							<p><em>${userGrade($G_rade)}</em></p>
+                                {% if the_author.portrait %}
+                                <img src="{{url_for('static', filename=the_author.portrait)}}" class="max_pic" />
+							    {% else %}
+                                <img src="{{url_for('static', filename='foreground/images/avatar_blank.gif')}}" class="max_pic" />
+                                {% endif %}
+                            </div>
+                                {% if the_author.usertype %}
+							    <p><em>administrator</em></p>
+                                {% else %}
+                                <p><em>ordinary user</em></p>
+                                {% endif %}
+
+							<p><em>{{the_author.email}}</em></p>
 							</div>
 							
 						</td>
 						<td class="plc">
 						<div class="pi">
 						<div id="fj" class="y">
-						<label class="z">电梯直达</label>
-						<input id="louceng" type="text" class="px p_fre z" size="2" title="跳转到指定楼层" />
-						<a href="javascript:;" id="fj_btn" class="z" title="跳转到指定楼层"><img src="{$domain_resource}/images/fj_btn.png" onclick="golouceng()" alt="跳转到指定楼层" class="vm" /></a>
+						<label class="z">Go</label>
+						<input id="louceng" type="text" class="px p_fre z" size="2" title="Go" />
+						<a href="javascript:;" id="fj_btn" class="z" title="Go"><img src="{{url_for('static', filename='foreground/images/fj_btn.png')}}" onclick="golouceng()" alt="Go" class="vm" /></a>
 						<script>
 						function golouceng(){
 							location.href='detail.php?id={$Id}#post_'+document.getElementById('louceng').value;
@@ -108,53 +129,56 @@
 						</script>
 						</div>
 						<strong>
-						<a href="detail.php?id={$Id}" id="postnum4">楼主</a>
+						<a href="" id="postnum4">Host</a>
 						</strong>
 						<div class="pti">
 						<div class="pdbt">
 						</div>
 						<div class="authi">
-						<img class="authicn vm" id="authicon{$Id}" src="{$domain_resource}/images/online_admin.gif" />
-						<em id="authorposton{$Id}">发表于 {$Addtime}</em>
+						<img class="authicn vm" id="authicon{$Id}" src="{{url_for('static', filename='foreground/images/online_admin.gif')}}" />
+						<em id="authorposton{$Id}">Published on {{the_post.addtime}}</em>
 						<!--<span class="pipe">|</span><a href="#">只看该作者</a>-->
 						</div>
 						</div>
 						</div><div class="pct">
 						<style type="text/css">.pcb{margin-right:0}</style>
 						<div class="pcb">
-						<!--{if $Rate}-->
+                        {% if the_post.rate != 0 %}
+                            {% if not current_user.is_authenticated or current_user.usertype == 0 %}
 							<!--{if !$GuanLi && $_COOKIE['uid']!=$authorid && !$MyOrder}-->
 							<div class="locked">
-								<a href="detail.php?id={$Id}&pay=yes" class="y viewpay" title="购买主题">购买主题</a>
+								<a href="" class="y viewpay" title="购买主题">Buy</a>
 								<em class="right">
 								</em>
-								本主题需向作者支付 <strong>{$Rate} 金钱 </strong> 才能浏览							
+								You need to pay <strong>{{the_post.rate}} coins </strong> to browse this ticket.
 							</div>
-							<!--{else}-->
+                            {% else %}
 							<div class="locked">
-								付费主题, 价格: <strong>{$Rate} 金钱 </strong>
+								Price: <strong>{{the_post.rate}} coins </strong>
 							</div>
 							<div class="t_fsz">
 							<table cellspacing="0" cellpadding="0">
 								<tr>
 									<td class="t_f" id="postmessage_{$Id}">
-									{$Content}
+									{{the_post.content | safe}}
 									</td>
 								</tr>
 							</table>
 							</div>
-							<!--{/if}-->
-						<!--{else}-->
+                            {% endif %}
+                        {% else %}
+
 						<div class="t_fsz">
 						<table cellspacing="0" cellpadding="0">
 							<tr>
 								<td class="t_f" id="postmessage_{$Id}">
-								{$Content}
+								{{the_post.content | safe}}
 								</td>
 							</tr>
 						</table>
 						</div>
-						<!--{/if}-->
+
+                        {% endif %}
 						<div id="comment_{$Id}" class="cm">
 						</div>
 						<div id="post_rate_div_{$Id}"></div>
@@ -162,31 +186,38 @@
 						
 						</td>
 					</tr>
+
 					<tr>
 						<td class="plc plm">
-						<!--{if $Elite}-->
-						<div class="modact">本主题已加入精华</div>
-						<!--{/if}-->
+                            {% if the_post.elite == 1 %}
 
-						<!--{if $A_utograph}-->
-						<div class="sign" style="max-height:100px;maxHeightIE:100px;">{$A_utograph}</div>
-						<!--{/if}-->
+						<div class="modact">Essence post</div>
+                            {% endif %}
+
+
+
+                        {% if the_author.signature %}
+						<div class="sign" style="max-height:100px;maxHeightIE:100px;">{{the_author.signature}}</div>
+
+                        {% endif %}
 						</td>
 					</tr>
 					<tr>
 						<td class="pls"></td>
 						<td class="plc">
 							<div class="po">
-								<!--{if $GuanLi}-->
+
+                                {% if current_user.usertype == 1 %}
 								<span class="y">
 									<label for="manage5">
-									<a href="detail.php?id={$Id}&del=1">删除</a><span class="pipe">|</span><a href="detail.php?id={$Id}&istop=1">置顶</a><span class="pipe">|</span><a href="detail.php?id={$Id}&elite=1">精华</a>
+									<a href="">Delete</a><span class="pipe">|</span><a href="">Sticky</a><span class="pipe">|</span><a href="">Essence</a>
 									</label>
 								</span>
-								<!--{/if}-->
+
+                                {% endif %}
 								<div class="pob cl">
 									<em>
-										<a class="fastre" href="#f_pst">回复</a>
+										<a class="fastre" href="#f_pst">Reply</a>
 									</em>
 								</div>
 							</div>
@@ -197,32 +228,37 @@
 						<td class="plc"></td>
 					</tr>
 				</table>
+
 			</div>
 			<!--{/if}-->
 			<!--楼主 END-->
-			
+{#        {% endfor %}#}
 			<!--回复列表 START-->
-			<!--{loop $HTiZi $hkey $hval}-->
+            {% for reply in the_replies %}
 			<div id="post_${setFloor($hkey)}">
 				<table id="pid{$hval['id']}" cellspacing="0" cellpadding="0">
 					<tr>
 						<td class="pls" rowspan="2">
 							<div class="pi">
-								<div class="authi">{$hval['username']}</div>
+								<div class="authi">Author: {{ reply.authorid }}</div>
 							</div>
 							<!--显示用户信息 START-->
 							<div class="p_pop blk bui" id="userinfo{$hval['id']}" style="display:none; margin-top: -11px;" onmouseout="showdpic('userinfo','{$hval['id']}')">
 								<div class="m z">
-									<div id="userinfo{$hval['id']}_ma"><img src="{$hval['picture']}" class="max_pic" /></div>
-								</div>
+                                    {% if rep_user[reply.authorid].portrait %}
+									<div id="userinfo{$hval['id']}_ma"><img src="{{url_for('static', filename=rep_user[reply.authorid].portrait)}}" class="max_pic" /></div>
+								    {% else %}
+                                    <div id="userinfo{$hval['id']}_ma"><img src="{{url_for('static', filename='foreground/images/avatar_blank.gif')}}" class="max_pic" /></div>
+                                    {% endif %}
+                                </div>
 								<div class="i y">
 								<div>
-								<strong>{$hval['username']}</strong>
-								<em>当前在线</em>
+								<strong>Author: {{ reply.authorid }}</strong>
+								<em>Online</em>
 								</div>
-								<dl class="cl"><dt>注册时间</dt><dd>${formatTime($hval['regtime'])}</dd><dt>积分</dt><dd>{$hval['grade']}</dd><dt>最后登录</dt><dd>${formatTime($hval['lasttime'])}</dd></dl>
+								<dl class="cl"><dt>Register time</dt><dd>{{rep_user[reply.authorid].regtime}}</dd><dt>Points</dt><dd>{{rep_user[reply.authorid].grade}}</dd><dt>Last login time</dt><dd>{{rep_user[reply.authorid].lasttime}}</dd></dl>
 								<div class="imicn">
-								<a href="#" target="_blank" title="查看详细资料"><img src="{$domain_resource}/images/userinfo.gif" alt="查看详细资料" /></a>
+								<a href="#" target="_blank" title="detail info"><img src="{{url_for('static', filename='foreground/images/userinfo.gif')}}" alt="detail info" /></a>
 								</div>
 								<div id="avatarfeed"><span id="threadsortswait"></span></div>
 								</div>
@@ -230,48 +266,63 @@
 							<!--显示用户信息 END-->
 							<div>
 								<div class="avatar" onmouseover="showbpic('userinfo','{$hval['id']}')">
-									<img src="{$hval['picture']}" class="max_pic" />
-								</div>
-								<p><em>${userGroup($hval['udertype'])}</em></p>
-								<p><em>${userGrade($hval['grade'])}</em></p>
+									{% if rep_user[reply.authorid].portrait %}
+                                    <img src="{{url_for('static', filename=rep_user[reply.authorid].portrait)}}" class="max_pic" />
+								    {% else %}
+                                    <img src="{{url_for('static', filename='foreground/images/avatar_blank.gif')}}" class="max_pic" />
+                                    {% endif %}
+                                </div>
+                                {% if rep_user[reply.authorid].usertype %}
+							    <p><em>administrator</em></p>
+                                {% else %}
+                                <p><em>ordinary user</em></p>
+                                {% endif %}
+                            {% if rep_user[reply.authorid].email %}
+							<p><em>{{rep_user[reply.authorid].email}}</em></p>
+                            {% endif %}
 							</div>
 						</td>
 						<td class="plc">
 						<div class="pi">
-							<strong><a>${storey($hkey+($linum*($Lpage-1)))}</a></strong>
+							<strong><a>第{{ loop.index }}楼</a></strong>
 							<div class="pti">
 								<div class="pdbt">
 								</div>
 								<div class="authi">
-									<img class="authicn vm" id="authicon{$hval['id']}" src="{$domain_resource}/images/online_admin.gif" />
-									<em id="authorposton{$hval['id']}">发表于 <span title="${formatTime($hval['addtime'],false)}">${getFormatTime($hval['addtime'])}</span></em>
+									<img class="authicn vm" id="authicon{$hval['id']}" src="{{url_for('static', filename='foreground/images/online_admin.gif')}}" />
+									<em id="authorposton{$hval['id']}">Published on <span title="${formatTime($hval['addtime'],false)}">{{reply.addtime}}</span></em>
 									<!--<span class="pipe">|</span><a href="#">只看该作者</a>-->
 								</div>
 							</div>
 						</div>
 						<div class="pct">
 							<div class="pcb">
-								<!--{if $hval['isdisplay']}-->
-								<div class="locked">提示: <em>该帖被管理员或版主屏蔽</em></div>
-								<!--{else}-->
+
+                                {% if reply.isdisplay %}
+								<div class="locked">Tip: <em>This reply has been blocked by an administrator or compere.</em></div>
+
+                                {% else %}
 								<div class="t_fsz">
 									<table cellspacing="0" cellpadding="0">
 										<tr>
 											<td class="t_f" id="postmessage_{$hval['id']}">
-											{$hval['content']}
+											{{reply.content | safe}}
 											</td>
 										</tr>
 									</table>
 								</div>
-								<!--{/if}-->
+                                {% endif %}
+
 								<div id="comment_{$hval['id']}" class="cm">
 								</div>
 								<div id="post_rate_div_{$hval['id']}"></div>
 							</div>
 						</div>
-						<!--{if $hval['autograph']}-->
-						<div class="sign" style="max-height:100px;maxHeightIE:100px;">{$hval['autograph']}</div>
-						<!--{/if}-->
+
+                        {% if rep_user[reply.authorid].autograph %}
+						<div class="sign" style="max-height:100px;maxHeightIE:100px;">{{ rep_user[reply.authorid].autograph }}</div>
+
+                        {% endif %}
 						</td>
 					</tr>
 					<tr>
@@ -281,16 +332,16 @@
 						<td class="pls"></td>
 						<td class="plc">
 							<div class="po">
-								<!--{if $GuanLi}-->
+                                {% if current_user.usertype %}
 								<span class="y">
 									<label for="manage5">
-									<a href="detail.php?id={$Id}&hid={$hval['id']}&delht=1">删除</a><span class="pipe">|</span><a href="detail.php?id={$Id}&hid={$hval['id']}&istopht=1">置顶</a><span class="pipe">|</span><a href="detail.php?id={$Id}&hid={$hval['id']}&isdislpay=1">屏蔽</a>
+									<a href="detail.php?id={$Id}&hid={$hval['id']}&delht=1">Delete</a><span class="pipe">|</span><a href="detail.php?id={$Id}&hid={$hval['id']}&istopht=1">Sticky</a><span class="pipe">|</span><a href="detail.php?id={$Id}&hid={$hval['id']}&isdislpay=1">Block</a>
 									</label>
 								</span>
-								<!--{/if}-->
+								{% endif %}
 								<div class="pob cl">
 									<em>
-										<a class="fastre" href="#f_pst">回复</a>
+										<a class="fastre" href="#f_pst">Reply</a>
 									</em>
 								</div>
 							</div>
@@ -301,19 +352,32 @@
 						<td class="plc"></td>
 					</tr>
 				</table>
+
 			</div>
+            {% endfor %}
 			<!--{/loop}-->
 			<!--回复列表 END-->
 		</div>
 		
 		<div class="pgs mtm mbm cl">
 			<span class="pgb y" id="visitedforumstmp">
-			<a href="list.php?classid={$classId}">返回列表</a></span>
-			<a id="newspecialtmp" href="addc.php?classid={$classId}" target="_blank" title ="发新帖"><img src="{$domain_resource}/images/pn_post.png" alt="发新帖" /></a>
-			<a id="post_replytmp" href="#f_pst" title="回复"><img src="{$domain_resource}/images/pn_reply.png" alt="回复" /></a>
+			<a href="">Return</a></span>
+			<a id="newspecialtmp" href="" target="_blank" title ="New post"><img src="{{ url_for('static', filename='foreground/images/pn_post.png')}}" alt="New post" /></a>
+			<a id="post_replytmp" href="#f_pst" title="Reply"><img src="{{ url_for('static', filename='foreground/images/pn_reply.png')}}" alt="Reply" /></a>
 		</div>
 		<div style="width:960px; margin:0 auto; padding:10px 0px; text-align:right">
-		${fpage($zCount, $linum, [8,3,4,5,6,7,0,1,2])}
+		    <a href="{{ url_for('bbs.list_detail',postid=classid ,page=1) }}">Index</a>
+            {% if data["pre"] %}
+            <a href="{{ url_for('bbs.list_detail',postid=classid ,page=data["pre"]) }}">Prev</a>
+{#            {% else %}#}
+{#            <a>Prev</a>#}
+            {% endif %}
+            {% if data["next"] %}
+            <a href="{{ url_for('bbs.list_detail',postid=classid ,page=data["next"]) }}">Next</a>
+            {% endif %}
+
+            <a href="{{ url_for('bbs.list_detail',postid=classid ,page=data["pages"]) }}">End</a>
+            | Total <span>{{ data["total"] }}</span> records |  show <span>{{ data['per_page'] }}</span> records per page |  <span>1-{{ length }}</span> record on this page  |  Page<span>{{ data['current'] }}/{{ data['pages'] }}</span>
 		</div>
 		<!--回帖 START-->
 		<div id="f_pst" class="pl bm bmw">
@@ -321,38 +385,46 @@
 			<table cellspacing="0" cellpadding="0">
 				<tr>
 					<td class="pls">
-						<div class="avatar"><img src="<!--{if empty($_COOKIE['picture'])}-->{$domain_resource}/images/avatar_blank.gif<!--{else}-->{$_COOKIE['picture']}<!--{/if}-->" class="max_pic" /></div>
+                        {% if current_user.portrait %}
+						<div class="avatar"><img src="{{ url_for('static', filename=current_user.portrait) }}" class="max_pic" /></div>
+                        {% else %}
+                        <div class="avatar"><img src="{{ url_for('static', filename='foreground/images/avatar_blank.gif') }}" class="max_pic" /></div>
+                        {% endif %}
 					</td>
 					<td class="plc">
 						<span id="fastpostreturn"></span>
 						<div class="cl">
 							<div id="fastsmiliesdiv" class="y">
-									<script type="text/javascript" src="public/ckeditor/ckeditor.js"></script>
-									<script src="public/ckeditor/sample.js" type="text/javascript"></script>
-									<textarea name="message" id="editor1" class="ckeditor1"></textarea>
+
+                                    <script type="text/javascript" src="{{ url_for('static', filename='foreground/ckeditor/ckeditor.js')}}"></script>
+						            <script type="text/javascript" src="{{ url_for('static', filename='foreground/js/sample.js')}}" ></script>
+                                    <textarea name="message" id="editor1" class="ckeditor1"></textarea>
 									<script type="text/javascript">
 									//<![CDATA[
-							
+
 										// Replace the <textarea id="editor"> with an CKEditor
 										// instance, using default configurations.
 										CKEDITOR.replace( 'editor1',
 											{
-												extraPlugins : 'uicolor',
+												{#extraPlugins : 'uicolor',#}
 												toolbar :
 												[
 													[ 'Bold', 'Italic', '-', 'NumberedList', 'BulletedList', '-', 'Link', 'Unlink' ],
-													[ 'UIColor' ]
+													{#[ 'UIColor' ]#}
 												]
 											});
-							
+
 									//]]>
-									</script><br />
+									</script>
+                                <br />
 
 							</div>
+                            <div>
 							<p class="ptm pnpost">
 								<button type="submit" name="replysubmit" id="fastpostsubmit" class="pn pnc vm" value="replysubmit" tabindex="5">
-								<strong>发表回复</strong></button>
+								<strong>Reply</strong></button>
 							</p>
+                            </div>
 						</div>
 						<input name="id" type="hidden" value="{$Id}" />
 						<input name="classid" type="hidden" value="{$classId}" />
@@ -402,49 +474,52 @@ function showdpic(obj1,obj2){
 					documentelement.scrolltop + (document.documentelement.clientheight-this.offsetheight)/2 :/*ie6*/
 					document.body.scrolltop + (document.body.clientheight - this.clientheight)/2);/*ie5 ie5.5*/
 	}
+    #fastsmiliesdiv{
+        width: 100%;
+    }
 </style>
-<div class="paylist" style="width:410px; overflow:hidden; border:5px solid #ccc;<!--{if empty($_GET['pay'])}--> display:none;<!--{/if}-->">
-	<form id="payform" method="post" autocomplete="off" action="">
-	<div class="f_c">
-		<h3 class="flb">
-			<em id="return_">购买主题</em>
-			<span>
-				<a href="detail.php?id={$Id}" class="flbc" title="关闭">关闭</a>
-			</span>
-		</h3>
-		<div class="c">
-			<table class="list" cellspacing="0" cellpadding="0" style="width:400px">
-				<tr>
-					<td width="20"></td>
-					<td><b>帖子</b></td>
-					<td width="80"><b>作者</b></td>
-					<td width="100"><b>售价(积分)</b></td>
-				</tr>
-				<!--{loop $OrderList $key $val}-->
-				<tr>
-					<td><input type="checkbox" name="oidarr[{$val['oid']}]" value="{$val['authorid']},{$val['rate']}" /></td>
-					<td>{$val['title']}</td>
-					<td>${getUserName($val['authorid'])}</td>
-					<td>{$val['rate']}</td>
-				</tr>
-				<!--{/loop}-->
-				<tr>
-					<td colspan="3"><b>总计：</b></th>
-					<td><b>{$allpay['zpay']}</b></td>
-				</tr>
-				<tr>
-					<td colspan="4">
-						<div class="o pns">
-						<button type="submit" name="paysubmit" class="pn pnc" value="true"><span>购买</span></button>
-						<button type="submit" name="delsubmit" class="pn pnc" value="true"><span>删除</span></button>
-						</div>
-					</th>
-				</tr>
-			</table>
-		</div>
-	</div>
-	</form>
-</div>
+{#<div class="paylist" style="width:410px; overflow:hidden; border:5px solid #ccc;<!--{if empty($_GET['pay'])}--> display:none;<!--{/if}-->">#}
+{#	<form id="payform" method="post" autocomplete="off" action="">#}
+{#	<div class="f_c">#}
+{#		<h3 class="flb">#}
+{#			<em id="return_">购买主题</em>#}
+{#			<span>#}
+{#				<a href="detail.php?id={$Id}" class="flbc" title="关闭">关闭</a>#}
+{#			</span>#}
+{#		</h3>#}
+{#		<div class="c">#}
+{#			<table class="list" cellspacing="0" cellpadding="0" style="width:400px">#}
+{#				<tr>#}
+{#					<td width="20"></td>#}
+{#					<td><b>帖子</b></td>#}
+{#					<td width="80"><b>作者</b></td>#}
+{#					<td width="100"><b>售价(积分)</b></td>#}
+{#				</tr>#}
+{#				<!--{loop $OrderList $key $val}-->#}
+{#				<tr>#}
+{#					<td><input type="checkbox" name="oidarr[{$val['oid']}]" value="{$val['authorid']},{$val['rate']}" /></td>#}
+{#					<td>{$val['title']}</td>#}
+{#					<td>${getUserName($val['authorid'])}</td>#}
+{#					<td>{$val['rate']}</td>#}
+{#				</tr>#}
+{#				<!--{/loop}-->#}
+{#				<tr>#}
+{#					<td colspan="3"><b>总计：</b></th>#}
+{#					<td><b>{$allpay['zpay']}</b></td>#}
+{#				</tr>#}
+{#				<tr>#}
+{#					<td colspan="4">#}
+{#						<div class="o pns">#}
+{#						<button type="submit" name="paysubmit" class="pn pnc" value="true"><span>购买</span></button>#}
+{#						<button type="submit" name="delsubmit" class="pn pnc" value="true"><span>删除</span></button>#}
+{#						</div>#}
+{#					</th>#}
+{#				</tr>#}
+{#			</table>#}
+{#		</div>#}
+{#	</div>#}
+{#	</form>#}
+{#</div>#}
 {% endblock %}
 </body>
 </html>

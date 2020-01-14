@@ -8,7 +8,7 @@ from hashlib import md5
 
 from flask_login import login_user, logout_user
 
-from App.models import User, Sponsor
+from App.models import User, Sponsor, Category
 from App.extensions import db
 from flask import Blueprint, request, redirect, url_for, render_template, session
 
@@ -19,6 +19,7 @@ user_info = Blueprint("user_info", __name__, url_prefix="/user")
 
 @user_info.route("/login/", methods=["GET", "POST"])
 def user_login():
+
     if request.method == "POST":
         username = request.form.get("username")
         password = request.form.get("password")
@@ -30,8 +31,10 @@ def user_login():
         if user and user.check_password(password):
             # write user info into session
             login_user(user)
+            return redirect(url_for("bbs.login_notice"))
         # jump to index page
-        return redirect(url_for("bbs.bbs_index"))
+        else:
+            return redirect(url_for("bbs.fail_notice"))
         # return "login page!!!"
     else:
         # show login page
@@ -48,6 +51,11 @@ def user_logout():
 @user_info.route("/register/", methods=["GET", "POST"])
 def user_register():
     formm = RegisterForm()
+
+    # query first level data
+    first_layer_category = Category.query.filter(Category.parentid == 0).all()
+    # query other levels data
+    other_layer_category = Category.query.filter(Category.parentid != 0).all()
     #  sponsor object
     sponsor = Sponsor.query.first()
     # current date
@@ -91,3 +99,4 @@ def user_register():
                 return render_template("foreground/reg.html", **locals())
         else:
             return render_template("foreground/reg.html", **locals())
+

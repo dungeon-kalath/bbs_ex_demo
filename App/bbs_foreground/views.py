@@ -53,7 +53,7 @@ def bbs_index(cid=0):
     subcat_id = [x.cid for x in Category.query.filter(Category.parentid != 0).all()]
     post_s = list()
     for i in range(subcat_nums):
-        post_l = Post.query.filter(Post.classid == subcat_id[i]).first()
+        post_l = Post.query.filter(Post.classid == subcat_id[i]).order_by(-Post.addtime).first()
         post_s.append(post_l)
 
     # if cid not equal to 0, find the specified section
@@ -200,12 +200,64 @@ def publish_post(cid):
 
 @bbs.route("/login/")
 def bbs_login():
+    # query first level data
+    first_layer_category = Category.query.filter(Category.parentid == 0).all()
+    # query other levels data
+    other_layer_category = Category.query.filter(Category.parentid != 0).all()
     # the login page
     sponsor = Sponsor.query.first()
     # current date
     current_year = datetime.datetime.now().year
     time_now = datetime.datetime.now().strftime("%m-%d %H:%M")
     return render_template("foreground/addc-login.html", **locals())
+
+
+@bbs.route('/notice/')
+def login_notice():
+    # query first level data
+    first_layer_category = Category.query.filter(Category.parentid == 0).all()
+    # query other levels data
+    other_layer_category = Category.query.filter(Category.parentid != 0).all()
+    # the login page
+    sponsor = Sponsor.query.first()
+    # current date
+    current_year = datetime.datetime.now().year
+    time_now = datetime.datetime.now().strftime("%m-%d %H:%M")
+    message = "Login successfully"
+    return render_template("foreground/notice.html", **locals())
+
+
+@bbs.route('/fail/')
+def fail_notice():
+    # query first level data
+    first_layer_category = Category.query.filter(Category.parentid == 0).all()
+    # query other levels data
+    other_layer_category = Category.query.filter(Category.parentid != 0).all()
+    # the login page
+    sponsor = Sponsor.query.first()
+    # current date
+    current_year = datetime.datetime.now().year
+    time_now = datetime.datetime.now().strftime("%m-%d %H:%M")
+    message = "Incorrect username or password, please try again "
+    return render_template("foreground/notice_fail.html", **locals())
+
+
+@bbs.route('/deletedpost/<int:ptid>')
+def deleted_post(ptid):
+    # query first level data
+    first_layer_category = Category.query.filter(Category.parentid == 0).all()
+    # query other levels data
+    other_layer_category = Category.query.filter(Category.parentid != 0).all()
+    # the login page
+    sponsor = Sponsor.query.first()
+    # current date
+    current_year = datetime.datetime.now().year
+    time_now = datetime.datetime.now().strftime("%m-%d %H:%M")
+    message = "The post you viewed does not exist or has been deleted"
+    if Post.query.filter(Post.id == ptid).first().isdel == 0:
+        return redirect(url_for("bbs.list_detail", cid=ptid, page=1))
+    else:
+        return render_template("foreground/notice_post.html", **locals())
 
 
 @bbs.route("/code/")
@@ -218,3 +270,107 @@ def show_code():
     response = make_response(res)
     response.headers['content-type'] = 'image/png'
     return response
+
+
+@bbs.route("/detail/<int:postid>/<int:page>/")
+def list_detail(postid, page=1):
+    the_post = Post.query.filter(Post.id == postid).first()
+    the_author = User.query.filter(User.id == the_post.authorid).first()
+    cid = Post.query.filter(Post.id == postid).first().classid
+
+    # query first level data
+    first_layer_category = Category.query.filter(Category.parentid == 0).all()
+    # query other levels data
+    other_layer_category = Category.query.filter(Category.parentid != 0).all()
+    # the login page
+    sponsor = Sponsor.query.first()
+    # current date
+    current_year = datetime.datetime.now().year
+    time_now = datetime.datetime.now().strftime("%m-%d %H:%M")
+
+    other_layer_id = Post.query.filter(Post.id == postid).first()
+    # query to find the specified sub-section
+    other_layer = Category.query.filter(Category.cid == other_layer_id.classid).all()
+    other_layer_name = other_layer[0].classname
+    other_layer_parent = other_layer[0].parentid
+
+    # find first-level section according to the sub-section
+    first_layer = Category.query.filter(and_(Category.parentid == 0, Category.cid == other_layer_parent)).all()
+    first_layer_name = first_layer[0].classname
+    first_layer_cid = first_layer[0].cid
+
+    the_replies = Reply.query.filter(Reply.tid == the_post.id).all()
+    print(the_replies)
+
+    # Show posts by pagination
+    pagenation = Reply.query.filter(Reply.tid == postid).paginate(page, 10)
+    data = {
+        # Total number of posts
+        'total': pagenation.total,
+        # Data list of current page
+        'posts': pagenation.items,
+        # Current page number
+        'current': pagenation.page,
+        # Number of posts per page
+        'per_page': pagenation.per_page,
+        # Total number of pages
+        'pages': pagenation.pages,
+        # Next page number
+        'next': pagenation.next_num,
+        # Previous page number
+        'pre': pagenation.prev_num
+    }
+    reply_s = data["posts"]
+    length = len(reply_s)
+
+    classid = postid
+
+    # res = db.session.execute("select * from bbs_reply inner join bbs_user on bbs_reply.authorid=bbs_user.uid ")
+    # print(res.fetchall())
+
+    rep_user = dict()
+
+    for rep in the_replies:
+        print(rep)
+        rep_user[rep.authorid] = User.query.filter(User.id == rep.authorid).first()
+    print(rep_user)
+    if the_post.isdel == 0:
+        return render_template("foreground/detail.html", **locals())
+    else:
+        return
+
+
+@bbs.route("/essence/<int:ptid>")
+def post_essence(ptid):
+    #
+    post = Post.query.filter(Post.id == ptid).first()
+    post.elite = 1 - post.elite
+    db.session.commit()
+    return redirect(url_for("bbs.list_detail", postid=ptid, page=1))
+
+
+@bbs.route("/essence/<int:ptid>")
+def post_pin(ptid):
+    #
+    post = Post.query.filter(Post.id == ptid).first()
+    post.istop = 1 - post.istop
+    db.session.commit()
+    return redirect(url_for("bbs.list_detail", postid=ptid, page=1))
+
+
+@bbs.route("/highlight/<int:ptid>")
+def post_highlight(ptid):
+    #
+    post = Post.query.filter(Post.id == ptid).first()
+    post.ishot = 1 - post.ishot
+    db.session.commit()
+    return redirect(url_for("bbs.list_detail", postid=ptid, page=1))
+
+
+@bbs.route("/essence/<int:ptid>")
+def post_delete(ptid):
+    #
+    post = Post.query.filter(Post.id == ptid).first()
+    post.isdel = 1 - post.isdel
+    db.session.commit()
+    return redirect(url_for("bbs.list_detail", postid=ptid, page=1))
