@@ -87,7 +87,7 @@
 
 						<tr>
 							<td class="icn">
-							<a href="{{ url_for('bbs.deleted_post', ptid=post.id) }}" title="{{ post.title }}"><img src="{{ url_for('static', filename='foreground/images/folder_common.gif') }}" /></a>
+							<a href="{{ url_for('bbs.list_detail', postid=post.id, page=1) }}" title="{{ post.title }}"><img src="{{ url_for('static', filename='foreground/images/folder_common.gif') }}" /></a>
 							</td>
 							<th class="">
 							 <a href="{{ url_for('bbs.list_detail', postid=post.id, page=1) }}" class="xst"  >{{ post.title }}</a>

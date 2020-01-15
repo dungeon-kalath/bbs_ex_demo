@@ -182,20 +182,36 @@ def publish_post(cid):
         post.authorid = session['user_id']
         post.title = post_title
         post.content = post_content
-        post.addtime = int(datetime.datetime.now().strftime("%Y%m%d"))
-        post.addip = 1123133
+        post.addtime = datetime.datetime.now()
+        post.addip = 1122122192
         post.classid = cid
         post.replycount = 0
         post.hits = 0
         post.istop = 0
         post.elite = 0
         post.ishot = 0
-        post.rate = 0
+        post.rate = post_price
         post.isdel = 0
         post.isdisplay = 0
         db.session.add(post)
         db.session.commit()
-        return redirect(url_for("bbs.list_category", cid=cid))
+        return redirect(url_for("bbs.list_category", cid=cid, page=1))
+
+@bbs.route("/reply/<int:ptid>/<int:cid>/", methods=['POST'])
+@login_required
+def reply_post(ptid, cid):
+    reply = Reply()
+    reply.tid = ptid
+    reply.authorid = session['user_id']
+    reply.content = request.form.get("message")
+    reply.addtime = datetime.datetime.now()
+    reply.addip = 1122122192
+    reply.classid = cid
+    reply.isdel = 0
+    reply.isdisplay = 0
+    db.session.add(reply)
+    db.session.commit()
+    return redirect(url_for("bbs.list_detail", postid=ptid, page=1))
 
 
 @bbs.route("/login/")
@@ -242,7 +258,7 @@ def fail_notice():
     return render_template("foreground/notice_fail.html", **locals())
 
 
-@bbs.route('/deletedpost/<int:ptid>')
+@bbs.route('/deletedpost/<int:ptid>/')
 def deleted_post(ptid):
     # query first level data
     first_layer_category = Category.query.filter(Category.parentid == 0).all()
@@ -254,10 +270,10 @@ def deleted_post(ptid):
     current_year = datetime.datetime.now().year
     time_now = datetime.datetime.now().strftime("%m-%d %H:%M")
     message = "The post you viewed does not exist or has been deleted"
-    if Post.query.filter(Post.id == ptid).first().isdel == 0:
-        return redirect(url_for("bbs.list_detail", cid=ptid, page=1))
-    else:
-        return render_template("foreground/notice_post.html", **locals())
+    # if Post.query.filter(Post.id == ptid).first().isdel == 0:
+    #     return redirect(url_for("bbs.list_detail", postid=ptid, page=1))
+    # else:
+    return render_template("foreground/notice_post.html", **locals())
 
 
 @bbs.route("/code/")
@@ -337,10 +353,12 @@ def list_detail(postid, page=1):
     if the_post.isdel == 0:
         return render_template("foreground/detail.html", **locals())
     else:
-        return
+        # return redirect(url_for("bbs.deleted_post", ptid=postid))
+        message = "The post you viewed does not exist or has been deleted"
+        return render_template("foreground/notice_post.html", **locals())
 
 
-@bbs.route("/essence/<int:ptid>")
+@bbs.route("/essence/<int:ptid>/")
 def post_essence(ptid):
     #
     post = Post.query.filter(Post.id == ptid).first()
@@ -349,7 +367,7 @@ def post_essence(ptid):
     return redirect(url_for("bbs.list_detail", postid=ptid, page=1))
 
 
-@bbs.route("/essence/<int:ptid>")
+@bbs.route("/pin/<int:ptid>/")
 def post_pin(ptid):
     #
     post = Post.query.filter(Post.id == ptid).first()
@@ -358,7 +376,7 @@ def post_pin(ptid):
     return redirect(url_for("bbs.list_detail", postid=ptid, page=1))
 
 
-@bbs.route("/highlight/<int:ptid>")
+@bbs.route("/highlight/<int:ptid>/")
 def post_highlight(ptid):
     #
     post = Post.query.filter(Post.id == ptid).first()
@@ -367,10 +385,29 @@ def post_highlight(ptid):
     return redirect(url_for("bbs.list_detail", postid=ptid, page=1))
 
 
-@bbs.route("/essence/<int:ptid>")
+@bbs.route("/delete/<int:ptid>/")
 def post_delete(ptid):
     #
     post = Post.query.filter(Post.id == ptid).first()
     post.isdel = 1 - post.isdel
+    print(post.id, post.isdel)
     db.session.commit()
     return redirect(url_for("bbs.list_detail", postid=ptid, page=1))
+
+
+@bbs.route("/repessence/<int:postid>/<int:repid>/")
+def reply_delete(postid, repid):
+    #
+    reply = Reply.query.filter(Reply.id == repid).first()
+    reply.isdel = 1 - reply.isdel
+    db.session.commit()
+    return redirect(url_for("bbs.list_detail", postid=postid, page=1))
+
+
+@bbs.route("/blockrep/<int:postid>/<int:repid>/")
+def reply_block(postid, repid):
+    #
+    reply = Reply.query.filter(Reply.id == repid).first()
+    reply.isdisplay = 1 - reply.isdisplay
+    db.session.commit()
+    return redirect(url_for("bbs.list_detail", postid=postid, page=1))

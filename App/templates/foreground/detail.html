@@ -21,15 +21,15 @@
 	<div id="ct" class="wp cl">
 		<div id="pgt" class="pgs mbm cl pbm bbs">
 			<div class="pgt"></div>
-			<span class="y pgb" id="visitedforums"><a href="">Return</a></span>
-			<a id="newspecial" href="" target="_blank" title="New post"><img src="{{ url_for('static', filename='foreground/images/pn_post.png')}}" alt="New post" /></a>
+			<span class="y pgb" id="visitedforums"><a href="{{ url_for('bbs.bbs_index') }}">Return</a></span>
+			<a id="newspecial" href="{{ url_for('bbs.publish_post', cid=cid) }}"  title="New post"><img src="{{ url_for('static', filename='foreground/images/pn_post.png')}}" alt="New post" /></a>
 			<a id="post_reply" href="#f_pst" title="Reply"><img src="{{ url_for('static', filename='foreground/images/pn_reply.png')}}" alt="Reply" /></a>
 		</div>
 		{% if current_user.usertype == 1 %}
 		<div id="modmenu" class="xi2 pbm">
-			<a href="">Delete post</a><span class="pipe">|</span>
-			<a href="">Pin</a><span class="pipe">|</span>
-			<a href="">Highlight</a><span class="pipe">|</span>
+			<a href="{{ url_for('bbs.post_delete', ptid=postid)  }}">Delete post</a><span class="pipe">|</span>
+			<a href="{{ url_for('bbs.post_pin', ptid=postid)  }}">Pin</a><span class="pipe">|</span>
+			<a href="{{ url_for('bbs.post_highlight', ptid=postid)  }}">Highlight</a><span class="pipe">|</span>
 			<a href="{{ url_for('bbs.post_essence', ptid=postid)  }}">Essence</a><span class="pipe">|</span>
 		</div>
 		{% endif %}
@@ -210,7 +210,7 @@
                                 {% if current_user.usertype == 1 %}
 								<span class="y">
 									<label for="manage5">
-									<a href="">Delete</a><span class="pipe">|</span><a href="">Sticky</a><span class="pipe">|</span><a href="">Essence</a>
+									<a href="{{ url_for('bbs.post_delete', ptid=postid)  }}">Delete</a><span class="pipe">|</span><a href="{{ url_for('bbs.post_pin', ptid=postid)  }}">Pin</a><span class="pipe">|</span><a href="{{ url_for('bbs.post_essence', ptid=postid)  }}">Essence</a>
 									</label>
 								</span>
 
@@ -235,6 +235,7 @@
 {#        {% endfor %}#}
 			<!--回复列表 START-->
             {% for reply in the_replies %}
+                 {% if reply.isdel == 0 %}
 			<div id="post_${setFloor($hkey)}">
 				<table id="pid{$hval['id']}" cellspacing="0" cellpadding="0">
 					<tr>
@@ -295,6 +296,7 @@
 								</div>
 							</div>
 						</div>
+
 						<div class="pct">
 							<div class="pcb">
 
@@ -305,7 +307,7 @@
 								<div class="t_fsz">
 									<table cellspacing="0" cellpadding="0">
 										<tr>
-											<td class="t_f" id="postmessage_{$hval['id']}">
+											<td class="t_f" name="replycontent"  id="postmessage_{$hval['id']}">
 											{{reply.content | safe}}
 											</td>
 										</tr>
@@ -335,7 +337,7 @@
                                 {% if current_user.usertype %}
 								<span class="y">
 									<label for="manage5">
-									<a href="detail.php?id={$Id}&hid={$hval['id']}&delht=1">Delete</a><span class="pipe">|</span><a href="detail.php?id={$Id}&hid={$hval['id']}&istopht=1">Sticky</a><span class="pipe">|</span><a href="detail.php?id={$Id}&hid={$hval['id']}&isdislpay=1">Block</a>
+									<a href="{{ url_for('bbs.reply_delete', postid=postid, repid=reply.id) }}">Delete</a><span class="pipe">|</span><a href="{{ url_for('bbs.reply_block', postid=postid, repid=reply.id) }}">Block</a>
 									</label>
 								</span>
 								{% endif %}
@@ -354,6 +356,7 @@
 				</table>
 
 			</div>
+                {% endif %}
             {% endfor %}
 			<!--{/loop}-->
 			<!--回复列表 END-->
@@ -362,8 +365,8 @@
 		<div class="pgs mtm mbm cl">
 			<span class="pgb y" id="visitedforumstmp">
 			<a href="">Return</a></span>
-			<a id="newspecialtmp" href="" target="_blank" title ="New post"><img src="{{ url_for('static', filename='foreground/images/pn_post.png')}}" alt="New post" /></a>
-			<a id="post_replytmp" href="#f_pst" title="Reply"><img src="{{ url_for('static', filename='foreground/images/pn_reply.png')}}" alt="Reply" /></a>
+			<a id="newspecialtmp" href="{{ url_for('bbs.publish_post', cid=cid) }}"  title ="New post"><img src="{{ url_for('static', filename='foreground/images/pn_post.png')}}" alt="New post" /></a>
+			<a id="post_replytmp" href="{{ url_for('bbs.reply_post', ptid=postid, cid=cid) }}" title="Reply"><img src="{{ url_for('static', filename='foreground/images/pn_reply.png')}}" alt="Reply" /></a>
 		</div>
 		<div style="width:960px; margin:0 auto; padding:10px 0px; text-align:right">
 		    <a href="{{ url_for('bbs.list_detail',postid=classid ,page=1) }}">Index</a>
@@ -381,7 +384,7 @@
 		</div>
 		<!--回帖 START-->
 		<div id="f_pst" class="pl bm bmw">
-			<form method="post" autocomplete="off" id="fastpostform" action="detail.php">
+			<form method="post" autocomplete="off" id="fastpostform" action="{{url_for('bbs.reply_post', ptid=postid, cid=cid)}}">
 			<table cellspacing="0" cellpadding="0">
 				<tr>
 					<td class="pls">

@@ -92,6 +92,7 @@ def user_register():
                 user.password = upsw
                 user.email = umail
                 user.portrait = "foreground/images/avatar_blank.gif"
+                user.regtime = datetime.datetime.now()
                 db.session.add(user)
                 db.session.commit()
                 return redirect(url_for("bbs.bbs_index"))
